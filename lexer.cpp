@@ -108,13 +108,12 @@ void lexer::Tokenize() // function that tokenizes your input stream
         switch (state)
         {
         case INITIAL:
-            // check for single character symbols
+            // check for single character tokens (Arithematic Ops and Special Symbols)
             if (c == '+')
             {
-                tokentype = TokenType::ADD;
+                tokentype = TokenType::ADD; // Once a token is found, store its tokentype, and go to the final state.
                 lexeme = "+";
                 state = FINAL;
-                it--;
                 break;
             }
             if (c == '-')
@@ -122,7 +121,6 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::SUB;
                 lexeme = "-";
                 state = FINAL;
-                it--;
                 break;
             }
             if (c == '*')
@@ -130,7 +128,6 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::MUL;
                 lexeme = "*";
                 state = FINAL;
-                it--;
                 break;
             }
             if (c == '/')
@@ -138,7 +135,6 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::DIV;
                 lexeme = "/";
                 state = FINAL;
-                it--;
                 break;
             }
             if (c == '%')
@@ -146,7 +142,6 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::MOD;
                 lexeme = "%";
                 state = FINAL;
-                it--;
                 break;
             }
             if (c == ',')
@@ -154,7 +149,6 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::COMMA;
                 lexeme = ",";
                 state = FINAL;
-                it--;
                 break;
             }
             if (c == ':')
@@ -162,7 +156,6 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::COLON;
                 lexeme = ":";
                 state = FINAL;
-                it--;
                 break;
             }
             if (c == ';')
@@ -170,19 +163,18 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::SEMICOLON;
                 lexeme = ";";
                 state = FINAL;
-                it--;
                 break;
             }
 
-            // change state based on type of input
+            // change stateto individual checking states (midway states) based on type of input
             if (isalpha(c))
-                state = 1;
+                state = 1; // check if identifier
             if (isdigit(c))
-                state = 2;
+                state = 2; // check if numeric literal
             if (c == '=')
-                state = 3;
+                state = 3; // check if equality op
             if (c == '<')
-                state = 4;
+                state = 4; // you gettit
             if (c == '>')
                 state = 5;
             if (c == '#')
@@ -193,15 +185,15 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 state = 8;
             if (c == '\"')
                 state = 11;
-            lexeme += c;
+            lexeme += c; // add current character to lexeme
             break;
 
         // Midway States
         case 1:
-            if (isalpha(c)) // Actually it should be if (isalpha(c) || isdigit(c)) inorder to incorporate digits into the identifier name.
+            if (isalpha(c)) // it should be if (isalpha(c) || isdigit(c)) inorder to incorporate digits into the identifier name.
                 state = 1;
             else
-                state = ID;
+                state = ID; // From midway states, go to concluding states once token has ended.
             lexeme += c;
             break;
         case 2:
@@ -273,12 +265,12 @@ void lexer::Tokenize() // function that tokenizes your input stream
             lexeme += c;
             break;
 
-        // Second Last States to assign TokenType
+        // Concluding States to assign TokenType
         case ID:
-            lexeme.pop_back();
-            // check for keywords
-            // match and give appropriate token type\
+            lexeme.pop_back(); // this is done to remove the last read symbol which switched the state (Similar to *state in DFA)
 
+            // check for keywords
+            // match and give appropriate token type
             tempItr = find(keywords.begin(), keywords.end(), lexeme);
 
             if (tempItr != keywords.end())
@@ -290,34 +282,29 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 tokentype = TokenType::ID;
             }
 
-            state = FINAL;
-            it--;
-            it--;
+            state = FINAL; // Once token type is confirmed go to final state
+
+            it--; // Some concluding states which we get from "other" input need to step back the iterator to re-read the current character for next iteration.
             break;
         case AO:
             tokentype = TokenType::AO;
             state = FINAL;
-            it--;
             break;
         case TRAP:
             tokentype = TokenType::ERROR;
             state = FINAL;
-            it--;
             break;
         case NE:
             tokentype = TokenType::NE;
             state = FINAL;
-            it--;
             break;
         case LE:
             tokentype = TokenType::LE;
             state = FINAL;
-            it--;
             break;
         case GE:
             tokentype = TokenType::GE;
             state = FINAL;
-            it--;
             break;
 
         case LT:
@@ -325,13 +312,11 @@ void lexer::Tokenize() // function that tokenizes your input stream
             tokentype = TokenType::LT;
             state = FINAL;
             it--;
-            it--;
             break;
         case GT:
             lexeme.pop_back();
             tokentype = TokenType::GT;
             state = FINAL;
-            it--;
             it--;
             break;
         case NL:
@@ -339,19 +324,16 @@ void lexer::Tokenize() // function that tokenizes your input stream
             tokentype = TokenType::NL;
             state = FINAL;
             it--;
-            it--;
             break;
         case COMM:
             lexeme.pop_back();
             tokentype = TokenType::COMM;
             state = FINAL;
-            it--;
             break;
         case EQ:
             lexeme.pop_back();
             tokentype = TokenType::EQ;
             state = FINAL;
-            it--;
             it--;
             break;
         case CL:
@@ -359,13 +341,11 @@ void lexer::Tokenize() // function that tokenizes your input stream
             tokentype = TokenType::CL;
             state = FINAL;
             it--;
-            it--;
             break;
         case STR:
             lexeme.pop_back();
             tokentype = TokenType::STR;
             state = FINAL;
-            it--;
             it--;
             break;
 
@@ -374,6 +354,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
             tokens.push_back(token(lexeme, tokentype));
             state = INITIAL;
             lexeme = "";
+            it--; // To re-read the character that was ignored when case was Final. current character was not processed.
             break;
         }
     }

@@ -1,0 +1,9 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/mnt/c/Users/Hani/Documents/GitHub/CompilerConstruction'
+g++ -c lexer.cpp
+ 
+g++ -c main.cpp
+g++ -c parser.cpp
+g++ lexer.o main.o parser.o -o a.out -lm
+make: Leaving directory '/mnt/c/Users/Hani/Documents/GitHub/CompilerConstruction'
+ 
