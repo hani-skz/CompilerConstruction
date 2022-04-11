@@ -244,15 +244,12 @@ void lexer::Tokenize() // function that tokenizes your input stream
             break;
         case 9:
             if (c == '\'')
-                state = 10;
+                state = CL;
             else
                 state = TRAP;
             lexeme += c;
             break;
-        case 10:
-            state = CL;
-            lexeme += c;
-            break;
+
         case 11:
             if (c == '\"')
                 state = 12;
@@ -283,7 +280,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
             }
 
             state = FINAL; // Once token type is confirmed go to final state
-
+            it--;
             it--; // Some concluding states which we get from "other" input need to step back the iterator to re-read the current character for next iteration.
             break;
         case AO:
@@ -329,6 +326,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
             lexeme.pop_back();
             tokentype = TokenType::COMM;
             state = FINAL;
+            it--;
             break;
         case EQ:
             lexeme.pop_back();
@@ -337,7 +335,6 @@ void lexer::Tokenize() // function that tokenizes your input stream
             it--;
             break;
         case CL:
-            lexeme.pop_back();
             tokentype = TokenType::CL;
             state = FINAL;
             it--;

@@ -1,5 +1,91 @@
-This will be your grammar file in future assignments
-Leave it as it is for now
-GRAMMAR:
+GRAMMER:
 
-Regular Expressions used in GRAMMAR
+S 		-> FUNC Datatype ID Parameters COLON BEGIN Statement END S'
+S'		-> FUNC Datatype ID Parameters COLON BEGIN Statement END S' | ^
+Parameters	-> ID Datatype Parameters' | ^
+Parameters' 	-> COMMA ID Datatype Parameters' | ^
+Datatype	-> INT | CHAR
+
+Statement 	-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
+		   Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement'
+Statement' 	-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
+		   Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
+
+Declaration_St	-> ID Rest_of_Decl
+Rest_of_Decl	-> Int_Init More_Int_Decl INT SEMICOLON | Char_Init More_Char_Decl CHAR SEMICOLON
+
+More_Int_Decl	-> COMMA ID Int_Init More_Int_Decl | ^
+More_Char_Decl 	-> COMMA ID Char_Init More_Char_Decl | ^
+Int_Init	-> AO Expression | ^
+Char_Init	-> AO CL | ^
+
+For_St		-> FOR For_Init COMMA Condition COMMA For_Init COLON BEGIN Statement END
+For_Init	-> ID AO Expression
+
+If_St		-> IF Condition COLON BEGIN Statement END Second_Block
+Second_Block 	-> Else_St | Elif_St | ^
+Else_St		-> ELSE COLON BEGIN Statement END
+Elif_St		-> ELIF Condition COLON BEGIN Statement END Second_Block
+
+Print_St	-> PRINT Print_Param SEMICOLON | PRINTLN Print_Param SEMICOLON
+Print_Param	-> STR | Expression 
+
+Return_St	-> RETURN Return_Param
+Return_Param	-> Expression | CL
+
+Condition	-> Expression RelationalOp Expression
+
+Expression	-> T E'
+E'		-> ADD T E' | SUB T E' | ^
+T		-> F T'
+T'		-> MUL F T' | DIV F T' | MOD F T' | ^
+F		-> ID | NL
+
+RelationalOp	-> EQ | GT | LT | GE | LE | NE
+
+Input_St	-> IN ID SEMICOLON
+
+Call_St		-> CALL ID Param_Id SEMICOLON
+Param_Id	-> ID Param_Id' | ^
+Param_Id'	-> COMMA ID Param_Id' | ^
+
+
+Regular Expressions for tokens:
+
+FUNC 		->		func
+INT 		->		int
+CHAR 		->		char
+CALL 		->		call
+IF 		->		if
+ELIF 		->		elif
+ELSE 		->		else
+FOR 		->		for
+PRINT 		->		print
+PRINTLN 	->		println
+RETURN 		->		return
+IN 		->		in
+BEGIN 		->		begin
+END 		->		end
+AO		->		<-
+ADD 		->		+
+SUB		->		-
+MUL		->		*
+DIV		->		/
+MOD		->		%
+EQ		->		=
+GT		->		>
+GE		->		>=
+LT		->		<
+LE		->		<=
+NE		->		~=
+ID		->		CL A*
+A		-> 		CL|NL 
+NL		->		NUM+
+CL		->		CH
+STR		->		(CH+NUM)+
+COMMA		->		,
+HASH		->		#
+COLON		->		:
+SEMICOLON	->		;
+CH		->		[all characters]
+NUM		->		0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9

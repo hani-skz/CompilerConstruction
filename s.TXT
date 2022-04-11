@@ -1,0 +1,122 @@
+{#if you were able to run this code (when your compiler is finished) you will get 3 (full) bonus marks , COMM}
+{#1) The for loop is inside else part , COMM}
+{#2) The list initialization at line 8 , COMM}
+{#3) function calling , COMM}
+{func , FUNC}
+{int , INT}
+{calculateFib , ID}
+{n , ID}
+{int , INT}
+{: , COLON}
+{begin , BEGIN}
+{#variable declarations, note i is not initialized , COMM}
+{x , ID}
+{<- , AO}
+{0 , NL}
+{, , COMMA}
+{y , ID}
+{<- , AO}
+{1 , NL}
+{, , COMMA}
+{z , ID}
+{<- , AO}
+{0 , NL}
+{, , COMMA}
+{i , ID}
+{int , INT}
+{; , SEMICOLON}
+{if , IF}
+{n , ID}
+{< , LT}
+{0 , NL}
+{: , COLON}
+{begin , BEGIN}
+{print , PRINT}
+{"negative number entered\n" , STR}
+{; , SEMICOLON}
+{#print , COMM}
+{return , RETURN}
+{0 , NL}
+{; , SEMICOLON}
+{# this statement just halt the program , COMM}
+{end , END}
+{else , ELSE}
+{: , COLON}
+{begin , BEGIN}
+{print , PRINT}
+{"\nThe fibonacci series :" , STR}
+{; , SEMICOLON}
+{#print , COMM}
+{for , FOR}
+{i , ID}
+{<- , AO}
+{0 , NL}
+{, , COMMA}
+{i , ID}
+{< , LT}
+{n , ID}
+{, , COMMA}
+{i , ID}
+{<- , AO}
+{i , ID}
+{+ , ADD}
+{1 , NL}
+{: , COLON}
+{# loop calculating actual output , COMM}
+{begin , BEGIN}
+{print , PRINT}
+{x , ID}
+{; , SEMICOLON}
+{print , PRINT}
+{" " , STR}
+{; , SEMICOLON}
+{z , ID}
+{<- , AO}
+{x , ID}
+{+ , ADD}
+{y , ID}
+{; , SEMICOLON}
+{# store sum in z , COMM}
+{x , ID}
+{<- , AO}
+{y , ID}
+{; , SEMICOLON}
+{#assign value of y to x , COMM}
+{y , ID}
+{<- , AO}
+{z , ID}
+{; , SEMICOLON}
+{#assign values of z to y , COMM}
+{end , END}
+{end , END}
+{return , RETURN}
+{0 , NL}
+{; , SEMICOLON}
+{end , END}
+{#program to calculate fibonacci series and display on stdout , COMM}
+{func , FUNC}
+{int , INT}
+{main , ID}
+{: , COLON}
+{begin , BEGIN}
+{# Three address code generation starts after here , COMM}
+{num , ID}
+{int , INT}
+{; , SEMICOLON}
+{print , PRINT}
+{"Enter the number :" , STR}
+{; , SEMICOLON}
+{#print  , COMM}
+{in , IN}
+{num , ID}
+{; , SEMICOLON}
+{# take input in num variable , COMM}
+{call , CALL}
+{calculateFib , ID}
+{num , ID}
+{; , SEMICOLON}
+{return , RETURN}
+{0 , NL}
+{; , SEMICOLON}
+{#halt , COMM}
+{end , END}
