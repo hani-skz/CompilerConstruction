@@ -15,7 +15,8 @@ token parser::expect(TokenType expected_type)
 }
 parser::parser(const char filename[])
 {
-    lexer _lexer(filename);
+    
+    _lexer = lexer(filename);
 }
 void parser::readAndPrintAllInput() //read and print allinputs (provided)
 {
