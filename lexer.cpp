@@ -427,10 +427,16 @@ token lexer::peek(int howFar)
     }
 
     int peekIndex = index + howFar - 1;
-    if (peekIndex > (tokens.size() - 1))
-    {                                             // if peeking too far
+    cout<<"peekIndex "<<peekIndex<<"\n";
+    cout<<"tokenSize-1: "<<(int)(tokens.size() - 1)<<endl;
+    if (peekIndex > (int)(tokens.size() - 1))
+    {                                      // if peeking too far
         return token("", TokenType::END_OF_FILE); // return END_OF_FILE
     }
-    else
+    else{
+        cout<<"peekIndex Decision\n";    
+        int a = int( tokens[peekIndex].tokenType);
+        cout<<"peekIndex Return "<<a<<"\n";
         return tokens[peekIndex];
+    }
 }

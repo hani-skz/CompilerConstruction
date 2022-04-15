@@ -1,4 +1,5 @@
 #include "parser.h"
+//#include "lexer.h"
 
 void parser::syntax_error()
 {
@@ -14,7 +15,7 @@ token parser::expect(TokenType expected_type)
 }
 parser::parser(const char filename[])
 {
-    _lexer = lexer(filename);
+    lexer _lexer(filename);
 }
 void parser::readAndPrintAllInput() //read and print allinputs (provided)
 {
@@ -30,9 +31,33 @@ void parser::resetPointer()
 {
     _lexer.resetPointer();
 }
+void parser::FUNC(){
+    cout<<"Hello Func\n";
+    cout<<"Token: "<<int(_lexer.peek(1).tokenType)<<endl;
+
+    if(_lexer.peek(1).tokenType == TokenType::FUNC){
+        expect(TokenType::FUNC);
+        cout<<"Bye Func\n";
+    }
+    /*else if(_lexer.peek(1).tokenType == TokenType::COMM){
+        parser::expect(TokenType::COMM);
+        FUNC();
+    }*/
+    else{
+        syntax_error();
+    }
+    
+} 
+
+
+void parser::S(){
+    cout<<"Hello\n";
+    FUNC();
+    //return true;
+}
 //this function is for sample purposes only
 /*
-bool parser::statements()
+void parser::statements()
 {
     //statements-- > COLON LPAREN start RPAREN
     if (_lexer.peek(1).tokenType == TokenType::COLON)
