@@ -30,7 +30,7 @@ Elif_St		-> ELIF Condition COLON BEGIN Statement END Second_Block
 Print_St	-> PRINT Print_Param SEMICOLON | PRINTLN Print_Param SEMICOLON
 Print_Param	-> STR | Expression 
 
-Return_St	-> RETURN Return_Param
+Return_St	-> RETURN Return_Param SEMICOLON
 Return_Param	-> Expression | CL
 
 Condition	-> Expression RelationalOp Expression

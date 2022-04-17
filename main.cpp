@@ -9,12 +9,12 @@ int main(int argc, char* argv[])
 	{
 		//Starting production --> rest follows
 		parser _parser(argv[1]);
-		//_parser.S();
+		_parser.S();
 		_parser.readAndPrintAllInput();
 		
 		
 
-		/*
+		
 		cout<<"\n\n";
 		lexer _lexer(argv[1]);
 		token t;
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 		{
 			t.Print();
 			t = _lexer.getNextToken();
-		}*/
+		}
 	}
 	else if (argc > 2)
 	{ //argument limit exceeds
