@@ -228,7 +228,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
                 state = COMM;
             else
                 state = 6;
-            lexeme += c;
+            //lexeme += c;
             break;
         case 7:
             if (c == '=')
@@ -286,6 +286,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
         case AO:
             tokentype = TokenType::AO;
             state = FINAL;
+            it--;
             break;
         case TRAP:
             tokentype = TokenType::ERROR;
@@ -309,6 +310,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
             tokentype = TokenType::LT;
             state = FINAL;
             it--;
+            it--;
             break;
         case GT:
             lexeme.pop_back();
@@ -321,13 +323,19 @@ void lexer::Tokenize() // function that tokenizes your input stream
             tokentype = TokenType::NL;
             state = FINAL;
             it--;
+            //it--;
             break;
         case COMM:
             lexeme.pop_back();
-            tokentype = TokenType::COMM;
-            state = FINAL;
-            it--;
+            //tokentype = TokenType::COMM;
+            //state = FINAL;
+            //tokens.push_back(token(lexeme, tokentype));
+            state = INITIAL;
+            lexeme = "";
+            it--; // To re-read the character that was ignored when case was Final. current character was not processed.
             break;
+            //it--;
+            //break;
         case EQ:
             lexeme.pop_back();
             tokentype = TokenType::EQ;
@@ -343,6 +351,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
             lexeme.pop_back();
             tokentype = TokenType::STR;
             state = FINAL;
+            it--;
             it--;
             break;
 

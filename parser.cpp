@@ -490,9 +490,12 @@ void parser::resetPointer()
     }
 
     void parser::If_St(){           //-> IF Condition COLON BEGIN Statement END Second_Block
+        cout<<"Hello If\n";
         parser::IF(); 
-        parser::Condition(); parser::COLON(); parser::BEGIN(); 
+        parser::Condition(); 
+        parser::COLON(); parser::BEGIN(); 
         parser::Statement(); parser::END(); parser::Second_Block();
+        cout<<"Bye If\n";
     }
     void parser::Second_Block(){    //-> Else_St | Elif_St | ^
         if(_lexer.peek(1).tokenType == TokenType::ELSE){
@@ -616,9 +619,11 @@ void parser::resetPointer()
     }
 
     void parser::Input_St(){
+        cout<<"Input_St\n";
         parser::IN();
         parser::ID();
         parser::SEMICOLON();
+        cout<<"Bye Input_St\n";
 
     }        //-> IN ID SEMICOLON
 
