@@ -323,7 +323,7 @@ void lexer::Tokenize() // function that tokenizes your input stream
             tokentype = TokenType::NL;
             state = FINAL;
             it--;
-            //it--;
+            it--;
             break;
         case COMM:
             lexeme.pop_back();
