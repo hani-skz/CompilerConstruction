@@ -12,12 +12,12 @@ Statement' 	-> Declaration_St Statement' | For_St Statement' | Print_St Statemen
 		   Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
 
 Declaration_St	-> ID Rest_of_Decl
-Rest_of_Decl	-> Int_Init More_Int_Decl INT SEMICOLON | Char_Init More_Char_Decl CHAR SEMICOLON
+Rest_of_Decl	-> Init More_Decl Datatype' SEMICOLON
 
-More_Int_Decl	-> COMMA ID Int_Init More_Int_Decl | ^
-More_Char_Decl 	-> COMMA ID Char_Init More_Char_Decl | ^
-Int_Init	-> AO Expression | ^
-Char_Init	-> AO CL | ^
+More_Decl	-> COMMA ID Init More_Decl | ^
+Datatype' 	-> INT | CHAR | ^
+Init		-> AO Value | ^
+Value 		-> Expression | CL
 
 For_St		-> FOR For_Init COMMA Condition COMMA For_Init COLON BEGIN Statement END
 For_Init	-> ID AO Expression

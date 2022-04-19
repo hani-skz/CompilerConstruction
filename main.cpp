@@ -13,18 +13,6 @@ int main(int argc, char* argv[])
 		_parser.readAndPrintAllInput();
 		
 		
-
-		
-		cout<<"\n\n";
-		lexer _lexer(argv[1]);
-		token t;
-		
-		t = _lexer.getNextToken();
-		while (t.tokenType != TokenType::END_OF_FILE)
-		{
-			t.Print();
-			t = _lexer.getNextToken();
-		}
 	}
 	else if (argc > 2)
 	{ //argument limit exceeds

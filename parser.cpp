@@ -1,3 +1,5 @@
+#include <fstream>
+using namespace std;
 #include "parser.h"
 //#include "lexer.h"
 
@@ -435,6 +437,8 @@ void parser::S()
 {
     parser::FUNC();
     parser::Datatype();
+    string funcName = _lexer.peek(1).lexeme;
+    currentScope = funcName;
     parser::ID();
     parser::Parameters();
     parser::COLON();
@@ -450,6 +454,8 @@ void parser::S_1()
     {
         parser::FUNC();
         parser::Datatype();
+        string funcName = _lexer.peek(1).lexeme;
+        currentScope = funcName;
         parser::ID();
         parser::Parameters();
         parser::COLON();
@@ -467,6 +473,8 @@ void parser::Parameters()
 {
     if ((_lexer.peek(1).tokenType == TokenType::ID))
     {
+        string id = _lexer.peek(1).lexeme;
+        addSymbol(id);
         parser::ID();
         parser::Datatype();
         parser::Parameters_1();
@@ -482,6 +490,8 @@ void parser::Parameters_1()
     if ((_lexer.peek(1).tokenType == TokenType::COMMA))
     {
         parser::COMMA();
+        string id = _lexer.peek(1).lexeme;
+        addSymbol(id);
         parser::ID();
         parser::Datatype();
         parser::Parameters_1();
@@ -592,21 +602,25 @@ void parser::Statement_1()
 }
 void parser::Declaration_St()
 { //-> ID Rest_of_Decl
+    string id = _lexer.peek(1).lexeme;
+    addSymbol(id);
     parser::ID();
     parser::Rest_of_Decl();
 }
 void parser::Rest_of_Decl() //-> Init More_Decl Datatype SEMICOLON
 {
-        Init();
-        More_Decl();
-        Datatype_1();
-        SEMICOLON();   
+    Init();
+    More_Decl();
+    Datatype_1();
+    SEMICOLON();
 }
 void parser::More_Decl()
 { //-> COMMA ID Int_Init More_Int_Decl | ^
     if (_lexer.peek(1).tokenType == TokenType::COMMA)
     {
         parser::COMMA();
+        string id = _lexer.peek(1).lexeme;
+        addSymbol(id);
         parser::ID();
         parser::Init();
         parser::More_Decl();
@@ -623,7 +637,6 @@ void parser::Datatype_1()
         parser::INT_terminal();
     else
     {
-        
     }
 }
 void parser::Init()
@@ -645,9 +658,10 @@ void parser::Value()
     }
     else if (_lexer.peek(1).tokenType == TokenType::NL || _lexer.peek(1).tokenType == TokenType::ID)
     {
-    parser::Expression();
+        parser::Expression();
     }
-    else {
+    else
+    {
         syntax_error();
     }
 }
@@ -942,3 +956,59 @@ void parser::statements()
     }
     return false;
 }*/
+
+void parser::addSymbol(string id)
+{
+    string symbols = "";
+    if (symbolTable.find(currentScope) != symbolTable.end())
+    {
+        symbols = symbolTable[currentScope];
+    }
+    else
+    {
+        symbolTable[currentScope] = "";  
+    }
+
+    if (symbols.find("\n" + id + " ") == string::npos)
+    {
+        string type;
+        int i = 1;
+        while (_lexer.peek(i).tokenType != TokenType::INT && _lexer.peek(i).tokenType != TokenType::CHAR && _lexer.peek(i).tokenType != TokenType::END_OF_FILE)
+            i++;
+
+        if (_lexer.peek(i).tokenType == TokenType::INT)
+        {
+            type = "INT";
+        }
+        else if (_lexer.peek(i).tokenType == TokenType::CHAR)
+        {
+            type = "CHAR";
+        }
+        else
+        {
+            cout << "Missing datatype for: " << id << endl;
+            syntax_error();
+        }
+
+        string value;
+        if (_lexer.peek(2).tokenType == TokenType::AO)
+        {
+            value = _lexer.peek(3).lexeme;
+        }
+        else
+        {
+            value = "None";
+        }
+        string entry = "\n" + id + " " + type + " " + value + " ";
+        symbolTable[currentScope] += entry;
+
+        ofstream table;
+        table.open("symbol_table.txt", ios_base::trunc);
+        unordered_map<string, string>::iterator itr;
+        for (itr = symbolTable.begin(); itr != symbolTable.end(); itr++)
+        {
+            table << itr->first << ":" << itr->second << endl;
+        }
+        table.close();
+    }
+}

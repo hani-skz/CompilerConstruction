@@ -1,18 +1,24 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 #include "lexer.h"
-//for future assignments leave it as it is
+#include <unordered_map>
+
 class parser
 {
 public:
     lexer _lexer;
     token look;
+    string currentScope;
+    unordered_map<string, string> symbolTable;
+
 public:
     void syntax_error();
     token expect(TokenType expected_type);
     parser(const char filename[]);
     void readAndPrintAllInput();
     void resetPointer();
+
+    void addSymbol(string id);
 
     /*Terminal functions goes here use peek and expect*/
     void FUNC();  
@@ -65,6 +71,7 @@ public:
     void Parameters();    //  -> ID Datatype Parameters' | ^
     void Parameters_1();    //     -> COMMA ID Datatype Parameters' | ^
     void Datatype();        //-> INT | CHAR
+    void Datatype_1();        //-> INT | CHAR | ^
 
     void Statement();       //-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
                             //Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement'
@@ -72,12 +79,11 @@ public:
                             //Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
 
     void Declaration_St();  //-> ID Rest_of_Decl
-    void Rest_of_Decl();    //-> Int_Init More_Int_Decl INT SEMICOLON | Char_Init More_Char_Decl CHAR SEMICOLON
+    void Rest_of_Decl();    //-> Init More_Decl Datatype SEMICOLON 
 
-    void More_Int_Decl();   //-> COMMA ID Int_Init More_Int_Decl | ^
-    void More_Char_Decl();  //-> COMMA ID Char_Init More_Char_Decl | ^
-    void Int_Init ();       //  -> AO Expression | ^
-    void Char_Init();       //-> AO CL | ^
+    void More_Decl();   //-> COMMA ID Init More_Decl | ^
+    void Init ();       //  -> AO Value | ^
+    void Value();       // -> CL | Expression
 
     void For_St();          //-> FOR For_Init COMMA Condition COMMA For_Init COLON BEGIN Statement END
     void For_Init();        //-> ID AO Expression
