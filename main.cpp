@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 		//Starting production --> rest follows
 		parser _parser(argv[1]);
 		_parser.S();
-		_parser.readAndPrintAllInput();
+		//_parser.readAndPrintAllInput();
 		
 		
 	}

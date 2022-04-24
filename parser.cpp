@@ -1000,15 +1000,15 @@ void parser::addSymbol(string id)
             syntax_error();
         }
 
-        string value;
-        if (_lexer.peek(2).tokenType == TokenType::AO)
-        {
-            value = _lexer.peek(3).lexeme;
-        }
-        else
-        {
-            value = "None";
-        }
+        // string value;
+        // if (_lexer.peek(2).tokenType == TokenType::AO)
+        // {
+        //     value = _lexer.peek(3).lexeme;
+        // }
+        // else
+        // {
+        //     value = "None";
+        // }
         string entry = "\n" + id + " " + type + " ";// + value + " ";
         symbolTable[currentScope] += entry;
 
