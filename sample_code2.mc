@@ -21,7 +21,7 @@ begin # Three address code generation starts after here
 		begin
 			print x;
 			print " ";
-			zef <- x + y; # store sum in z
+			z <- x + y; # store sum in z
 			x <- y; #assign value of y to x
 			y <- z; #assign values of z to y
 		end

@@ -1,6 +1,8 @@
 main:
-x INT 0 
-y INT 1 
-z INT 0 
-i INT None 
-num INT None 
+num INT 
+calculateFib:
+n INT 
+x INT 
+y INT 
+z INT 
+i INT 

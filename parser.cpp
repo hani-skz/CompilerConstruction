@@ -1,7 +1,6 @@
 #include <fstream>
 using namespace std;
 #include "parser.h"
-//#include "lexer.h"
 
 void parser::syntax_error()
 {
@@ -437,8 +436,10 @@ void parser::S()
 {
     parser::FUNC();
     parser::Datatype();
-    string funcName = _lexer.peek(1).lexeme;
-    currentScope = funcName;
+    if(_lexer.peek(1).tokenType == TokenType::ID){
+        string funcName = _lexer.peek(1).lexeme;
+        currentScope = funcName;
+    }
     parser::ID();
     parser::Parameters();
     parser::COLON();
@@ -454,8 +455,10 @@ void parser::S_1()
     {
         parser::FUNC();
         parser::Datatype();
-        string funcName = _lexer.peek(1).lexeme;
-        currentScope = funcName;
+        if(_lexer.peek(1).tokenType == TokenType::ID){
+            string funcName = _lexer.peek(1).lexeme;
+            currentScope = funcName;
+        }
         parser::ID();
         parser::Parameters();
         parser::COLON();
@@ -490,8 +493,10 @@ void parser::Parameters_1()
     if ((_lexer.peek(1).tokenType == TokenType::COMMA))
     {
         parser::COMMA();
-        string id = _lexer.peek(1).lexeme;
-        addSymbol(id);
+        if(_lexer.peek(1).tokenType == TokenType::ID){
+            string id = _lexer.peek(1).lexeme;
+            addSymbol(id);
+        }
         parser::ID();
         parser::Datatype();
         parser::Parameters_1();
@@ -602,8 +607,11 @@ void parser::Statement_1()
 }
 void parser::Declaration_St()
 { //-> ID Rest_of_Decl
-    string id = _lexer.peek(1).lexeme;
-    addSymbol(id);
+
+    if(_lexer.peek(1).tokenType == TokenType::ID){
+        string id = _lexer.peek(1).lexeme;
+        addSymbol(id);
+    }
     parser::ID();
     parser::Rest_of_Decl();
 }
@@ -619,8 +627,10 @@ void parser::More_Decl()
     if (_lexer.peek(1).tokenType == TokenType::COMMA)
     {
         parser::COMMA();
-        string id = _lexer.peek(1).lexeme;
-        addSymbol(id);
+        if(_lexer.peek(1).tokenType == TokenType::ID){
+            string id = _lexer.peek(1).lexeme;
+            addSymbol(id);
+        }
         parser::ID();
         parser::Init();
         parser::More_Decl();
@@ -999,7 +1009,7 @@ void parser::addSymbol(string id)
         {
             value = "None";
         }
-        string entry = "\n" + id + " " + type + " " + value + " ";
+        string entry = "\n" + id + " " + type + " ";// + value + " ";
         symbolTable[currentScope] += entry;
 
         ofstream table;
