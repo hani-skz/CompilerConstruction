@@ -639,6 +639,16 @@ void parser::More_Decl()
     {
     }
 }
+void parser::Datatype_1()
+{
+    if ((_lexer.peek(1).tokenType == TokenType::CHAR))
+        parser::CHAR_terminal();
+    else if ((_lexer.peek(1).tokenType == TokenType::INT))
+        parser::INT_terminal();
+    else
+    {
+    }
+}
 
 void parser::Init()
 { //  -> AO Expression | ^
