@@ -619,7 +619,7 @@ void parser::Rest_of_Decl() //-> Init More_Decl Datatype SEMICOLON
 {
     Init();
     More_Decl();
-    Datatype();
+    Datatype_1();
     SEMICOLON();
 }
 void parser::More_Decl()
@@ -649,7 +649,6 @@ void parser::Datatype_1()
     {
     }
 }
-
 void parser::Init()
 { //  -> AO Expression | ^
     if (_lexer.peek(1).tokenType == TokenType::AO)
@@ -1001,15 +1000,15 @@ void parser::addSymbol(string id)
             syntax_error();
         }
 
-        // string value;
-        // if (_lexer.peek(2).tokenType == TokenType::AO)
-        // {
-        //     value = _lexer.peek(3).lexeme;
-        // }
-        // else
-        // {
-        //     value = "None";
-        // }
+        string value;
+        if (_lexer.peek(2).tokenType == TokenType::AO)
+        {
+            value = _lexer.peek(3).lexeme;
+        }
+        else
+        {
+            value = "None";
+        }
         string entry = "\n" + id + " " + type + " ";// + value + " ";
         symbolTable[currentScope] += entry;
 

@@ -71,7 +71,7 @@ public:
     void Parameters();    //  -> ID Datatype Parameters' | ^
     void Parameters_1();    //     -> COMMA ID Datatype Parameters' | ^
     void Datatype();        //-> INT | CHAR
-	void Datatype_1();        //-> INT | CHAR | ^
+    void Datatype_1();        //-> INT | CHAR | ^
 
     void Statement();       //-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
                             //Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement'
