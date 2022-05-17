@@ -619,7 +619,7 @@ void parser::Rest_of_Decl() //-> Init More_Decl Datatype SEMICOLON
 {
     Init();
     More_Decl();
-    Datatype_1();
+    Datatype();
     SEMICOLON();
 }
 void parser::More_Decl()
@@ -639,16 +639,7 @@ void parser::More_Decl()
     {
     }
 }
-void parser::Datatype_1()
-{
-    if ((_lexer.peek(1).tokenType == TokenType::CHAR))
-        parser::CHAR_terminal();
-    else if ((_lexer.peek(1).tokenType == TokenType::INT))
-        parser::INT_terminal();
-    else
-    {
-    }
-}
+
 void parser::Init()
 { //  -> AO Expression | ^
     if (_lexer.peek(1).tokenType == TokenType::AO)
