@@ -2,7 +2,6 @@ GRAMMER:
 
 {
 	int n=1;
-	emit("call main")
 }
 
 S 				-> FUNC Datatype ID Parameters COLON BEGIN Statement END S'
@@ -17,9 +16,10 @@ Statement' 		-> Declaration_St Statement' | For_St Statement' | Print_St Stateme
 		   			Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
 
 Declaration_St	-> ID {Rest_of_decl.first_id = ID} Rest_of_Decl
-Rest_of_Decl	-> {Init.id = Rest_of_Decl.first_id} Init More_Decl Datatype SEMICOLON
+Rest_of_Decl	-> {Init.id = Rest_of_Decl.first_id} Init More_Decl Datatype' SEMICOLON
 
 More_Decl		-> COMMA ID {Init.id = ID} Init More_Decl | ^
+Datatype'		-> INT | CHAR | ^
 Init			-> AO Value {emit(Init.id,"=",Value.v)} | ^
 Value 			-> Expression {Value.v=Expression.v} | CL {Value.v=CL.lex}
 
@@ -33,6 +33,9 @@ Elif_St			-> ELIF {backpatch(Elif_St.f,n)} Condition {backpatch(Condition.t,n);S
 
 Print_St		-> PRINT Print_Param SEMICOLON emit("out ",Print_Param.s) | PRINTLN Print_Param SEMICOLON emit("out ",Print_Param.s,"\n")
 Print_Param		-> STR {Print_Param.s='"' + STR.lex + '"'} | Expression {Print_Param.s=Expression.v}
+
+
+		
 
 Return_St		-> RETURN Return_Param SEMICOLON {emit("ret",Return_Param.v)}
 Return_Param	-> Expression {Return_Param.v=Expression.v} | CL {Return_Param.v=CL.lex}

@@ -11,11 +11,11 @@ Statement 	-> Declaration_St Statement' | For_St Statement' | Print_St Statement
 Statement' 	-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
 		   Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
 
+
 Declaration_St	-> ID Rest_of_Decl
-Rest_of_Decl	-> Init More_Decl Datatype' SEMICOLON
+Rest_of_Decl	-> Init More_Decl Datatype SEMICOLON
 
 More_Decl	-> COMMA ID Init More_Decl | ^
-Datatype' 	-> INT | CHAR | ^
 Init		-> AO Value | ^
 Value 		-> Expression | CL
 
