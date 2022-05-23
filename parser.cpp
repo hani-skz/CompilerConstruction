@@ -1043,7 +1043,7 @@ void parser::addSymbol(string id)
             syntax_error();
         }
 
-        string value;
+        /*string value;
         if (_lexer.peek(2).tokenType == TokenType::AO)
         {
             value = _lexer.peek(3).lexeme;
@@ -1051,8 +1051,13 @@ void parser::addSymbol(string id)
         else
         {
             value = "None";
+<<<<<<< Updated upstream
         }
         string entry = "\n" + id + " " + type + " " + value + " ";
+=======
+        }*/
+        string entry = "\n" + id + " " + type + " ";// + value + " ";
+>>>>>>> Stashed changes
         symbolTable[currentScope] += entry;
 
         ofstream table;

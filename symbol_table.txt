@@ -1,8 +1,6 @@
 main:
-num INT 
-calculateFib:
-n INT 
 x INT 
 y INT 
 z INT 
 i INT 
+num INT 
