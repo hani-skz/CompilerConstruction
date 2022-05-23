@@ -333,44 +333,48 @@ void parser::NE()
         syntax_error();
     }
 }
-void parser::ID()
+string parser::ID()
 {
     if ((_lexer.peek(1).tokenType == TokenType::ID))
     {
         expect(TokenType::ID);
+        return _lexer.peek(1).lexeme;
     }
     else
     {
         syntax_error();
     }
 }
-void parser::NL()
+string parser::NL()
 {
     if ((_lexer.peek(1).tokenType == TokenType::NL))
     {
         expect(TokenType::NL);
+        return _lexer.peek(1).lexeme;
     }
     else
     {
         syntax_error();
     }
 }
-void parser::CL()
+string parser::CL()
 {
     if ((_lexer.peek(1).tokenType == TokenType::CL))
     {
         expect(TokenType::CL);
+        return _lexer.peek(1).lexeme;
     }
     else
     {
         syntax_error();
     }
 }
-void parser::STR()
+string parser::STR()
 {
     if ((_lexer.peek(1).tokenType == TokenType::STR))
     {
         expect(TokenType::STR);
+        return _lexer.peek(1).lexeme;
     }
     else
     {
@@ -436,7 +440,8 @@ void parser::S()
 {
     parser::FUNC();
     parser::Datatype();
-    if(_lexer.peek(1).tokenType == TokenType::ID){
+    if (_lexer.peek(1).tokenType == TokenType::ID)
+    {
         string funcName = _lexer.peek(1).lexeme;
         currentScope = funcName;
     }
@@ -455,7 +460,8 @@ void parser::S_1()
     {
         parser::FUNC();
         parser::Datatype();
-        if(_lexer.peek(1).tokenType == TokenType::ID){
+        if (_lexer.peek(1).tokenType == TokenType::ID)
+        {
             string funcName = _lexer.peek(1).lexeme;
             currentScope = funcName;
         }
@@ -493,7 +499,8 @@ void parser::Parameters_1()
     if ((_lexer.peek(1).tokenType == TokenType::COMMA))
     {
         parser::COMMA();
-        if(_lexer.peek(1).tokenType == TokenType::ID){
+        if (_lexer.peek(1).tokenType == TokenType::ID)
+        {
             string id = _lexer.peek(1).lexeme;
             addSymbol(id);
         }
@@ -608,16 +615,17 @@ void parser::Statement_1()
 void parser::Declaration_St()
 { //-> ID Rest_of_Decl
 
-    if(_lexer.peek(1).tokenType == TokenType::ID){
+    if (_lexer.peek(1).tokenType == TokenType::ID)
+    {
         string id = _lexer.peek(1).lexeme;
         addSymbol(id);
     }
-    parser::ID();
-    parser::Rest_of_Decl();
+    string first_id = parser::ID();
+    parser::Rest_of_Decl(first_id);
 }
-void parser::Rest_of_Decl() //-> Init More_Decl Datatype SEMICOLON
+void parser::Rest_of_Decl(string first_id) //-> Init More_Decl Datatype SEMICOLON
 {
-    Init();
+    Init(first_id);
     More_Decl();
     Datatype_1();
     SEMICOLON();
@@ -627,12 +635,13 @@ void parser::More_Decl()
     if (_lexer.peek(1).tokenType == TokenType::COMMA)
     {
         parser::COMMA();
-        if(_lexer.peek(1).tokenType == TokenType::ID){
+        if (_lexer.peek(1).tokenType == TokenType::ID)
+        {
             string id = _lexer.peek(1).lexeme;
             addSymbol(id);
         }
-        parser::ID();
-        parser::Init();
+        string id = parser::ID();
+        parser::Init(id);
         parser::More_Decl();
     }
     else
@@ -649,26 +658,29 @@ void parser::Datatype_1()
     {
     }
 }
-void parser::Init()
+void parser::Init(string id)
 { //  -> AO Expression | ^
     if (_lexer.peek(1).tokenType == TokenType::AO)
     {
         parser::AO();
-        parser::Value();
+        string v = parser::Value();
+        emit(id + " = " + v);
     }
     else
     {
     }
 }
-void parser::Value()
+string parser::Value()
 { //  -> AO Expression | ^
     if (_lexer.peek(1).tokenType == TokenType::CL)
     {
-        parser::CL();
+        string v = parser::CL();
+        return v;
     }
     else if (_lexer.peek(1).tokenType == TokenType::NL || _lexer.peek(1).tokenType == TokenType::ID)
     {
-        parser::Expression();
+        string v = parser::Expression();
+        return v;
     }
     else
     {
@@ -679,64 +691,81 @@ void parser::Value()
 void parser::For_St()
 { //-> FOR For_Init COMMA Condition COMMA For_Init COLON BEGIN Statement END
     parser::FOR();
-    parser::For_Init();
+    string s = parser::For_Init();
+    emit(s);
     parser::COMMA();
-    parser::Condition();
+    int start = n;
+    vector<int> v = parser::Condition();
+    backpatch(v[0], to_string(n));
     parser::COMMA();
-    parser::For_Init();
+    s = parser::For_Init();
     parser::COLON();
     parser::BEGIN();
     parser::Statement();
+    emit(s);
+    emit("goto" + to_string(start));
+    backpatch(v[1], to_string(n));
     parser::END();
 }
-void parser::For_Init()
+string parser::For_Init()
 { //-> ID AO Expression
-    parser::ID();
+    string id = parser::ID();
     parser::AO();
-    parser::Expression();
+    string v = parser::Expression();
+    string s = id + " = " + v;
 }
 
 void parser::If_St()
 { //-> IF Condition COLON BEGIN Statement END Second_Block
     parser::IF();
-    parser::Condition();
+    vector<int> v = parser::Condition();
+    backpatch(v[0], to_string(n));
     parser::COLON();
     parser::BEGIN();
     parser::Statement();
+    int next = n;
+    emit("goto");
     parser::END();
-    parser::Second_Block();
+    parser::Second_Block(v[1]);
+    backpatch(next, to_string(n));
 }
-void parser::Second_Block()
+void parser::Second_Block(int f)
 { //-> Else_St | Elif_St | ^
     if (_lexer.peek(1).tokenType == TokenType::ELSE)
     {
-        parser::Else_St();
+        parser::Else_St(f);
     }
     else if (_lexer.peek(1).tokenType == TokenType::ELIF)
     {
-        parser::Elif_St();
+        parser::Elif_St(f);
     }
     else
     {
     }
 }
-void parser::Else_St()
+void parser::Else_St(int f)
 { //-> ELSE COLON BEGIN Statement END
     parser::ELSE();
+    backpatch(f, to_string(n));
     parser::COLON();
     parser::BEGIN();
     parser::Statement();
     parser::END();
 }
-void parser::Elif_St()
+void parser::Elif_St(int f)
 { //-> ELIF Condition COLON BEGIN Statement END Second_Block
     parser::ELIF();
-    parser::Condition();
+    backpatch(f, to_string(n));
+    vector<int> v = parser::Condition();
+    backpatch(v[0], to_string(n));
     parser::COLON();
     parser::BEGIN();
     parser::Statement();
+    int next = n;
+    emit("goto");
     parser::END();
-    parser::Second_Block();
+    parser::Second_Block(v[1]);
+    backpatch(next, to_string(n));
 }
 
 void parser::Print_St()
@@ -744,14 +773,16 @@ void parser::Print_St()
     if (_lexer.peek(1).tokenType == TokenType::PRINT)
     {
         parser::PRINT();
-        parser::Print_Param();
+        string s = parser::Print_Param();
         parser::SEMICOLON();
+        emit("out " + s);
     }
     else if (_lexer.peek(1).tokenType == TokenType::PRINTLN)
     {
         parser::PRINTLN();
-        parser::Print_Param();
+        string s = parser::Print_Param();
         parser::SEMICOLON();
+        emit("out " + s + "\n");
     }
     else
     {
@@ -759,54 +790,66 @@ void parser::Print_St()
     }
 }
 
-void parser::Print_Param()
+string parser::Print_Param()
 { //-> STR | Expression
     if (_lexer.peek(1).tokenType == TokenType::STR)
     {
-        parser::STR();
+        string s = parser::STR();
+        return "\"" + s + "\"";
     }
     else
     {
-        parser::Expression();
+        string s = parser::Expression();
+        return s;
     }
 }
 void parser::Return_St()
 { //->
     parser::RETURN();
-    parser::Return_Param();
+    string v = parser::Return_Param();
     parser::SEMICOLON();
+    emit("ret " + v);
 }
-void parser::Return_Param()
+string parser::Return_Param()
 { //-> Expression | CL
     if (_lexer.peek(1).tokenType == TokenType::CL)
     {
-        parser::CL();
+        string lex = parser::CL();
+        return lex;
     }
     else
     {
-        parser::Expression();
+        string v = parser::Expression();
+        return v;
     }
 }
-void parser::Condition()
+vector<int> parser::Condition()
 { //
-    parser::Expression();
-    parser::RelationalOp();
-    parser::Expression();
+    vector<int> v;
+
+    string s1 = parser::Expression();
+    string op = parser::RelationalOp();
+    string s2 = parser::Expression();
+    v.push_back(n);
+    emit("if " + s1 + " " + op + " " + s2 + " goto");
+    v.push_back(n);
+    emit("goto");
 }
 
 //------------------Expressions------------------------------------------
-void parser::Expression()
+string parser::Expression()
 {
-    parser::T();
-    parser::E_1();
+    string n = parser::T();
+    string v = parser::E_1(n);
+    return v;
 } //-> T E'
-void parser::E_1()
+string parser::E_1(string n)
 {
     if (_lexer.peek(1).tokenType == TokenType::ADD)
     {
         parser::ADD();
-        parser::T();
-        parser::E_1();
+        string t = parser::T();
+        string f = parser::E_1(t);
     }
     if (_lexer.peek(1).tokenType == TokenType::SUB)
     {
@@ -976,7 +1019,7 @@ void parser::addSymbol(string id)
     }
     else
     {
-        symbolTable[currentScope] = "";  
+        symbolTable[currentScope] = "";
     }
 
     if (symbols.find("\n" + id + " ") == string::npos)
@@ -1009,7 +1052,7 @@ void parser::addSymbol(string id)
         {
             value = "None";
         }
-        string entry = "\n" + id + " " + type + " ";// + value + " ";
+        string entry = "\n" + id + " " + type + " " + value + " ";
         symbolTable[currentScope] += entry;
 
         ofstream table;
@@ -1021,4 +1064,15 @@ void parser::addSymbol(string id)
         }
         table.close();
     }
+}
+
+void parser::emit(string s)
+{
+    TAC.push_back(to_string(n) + s);
+    n++;
+}
+
+void parser::backpatch(int n, string s)
+{
+    TAC[n - 1] += (" " + s);
 }
