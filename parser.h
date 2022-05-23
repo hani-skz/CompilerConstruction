@@ -10,9 +10,12 @@ public:
     lexer _lexer;
     token look;
     string currentScope;
+    int currentScopeLineNumber;
     unordered_map<string, string> symbolTable;
     vector<string> TAC;
     int n = 1;
+    int tmp = 1;
+    
 
 public:
     void syntax_error();
@@ -23,6 +26,9 @@ public:
     void emit(string s);
     void backpatch(int n, string s);
     void addSymbol(string id);
+    void addSymboltmp(string id);
+    string newTmp();
+    void generateTAC();
 
     /*Terminal functions goes here use peek and expect*/
     void FUNC();
@@ -52,7 +58,6 @@ public:
     void LE();
     void NE();
     string ID();
-    void A();
     string NL();
     string CL();
     string STR();
@@ -67,7 +72,7 @@ public:
         expect(TokenType::ASSIGN);   //example function call
       */
 
-    //all your parser function goes here
+    // all your parser function goes here
     void S();            //-> FUNC Datatype ID Parameters COLON BEGIN Statement END S'
     void S_1();          //-> FUNC Datatype ID Parameters COLON BEGIN Statement END S' | ^
     void Parameters();   //  -> ID Datatype Parameters' | ^
@@ -76,9 +81,9 @@ public:
     void Datatype_1();   //-> INT | CHAR | ^
 
     void Statement();   //-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
-                        //Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement'
+                        // Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement'
     void Statement_1(); //-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
-                        //Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
+                        // Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
 
     void Declaration_St();              //-> ID Rest_of_Decl
     void Rest_of_Decl(string first_id); //-> Init More_Decl Datatype SEMICOLON

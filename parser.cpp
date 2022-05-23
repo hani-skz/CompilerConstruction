@@ -337,8 +337,9 @@ string parser::ID()
 {
     if ((_lexer.peek(1).tokenType == TokenType::ID))
     {
+        string lex = _lexer.peek(1).lexeme;
         expect(TokenType::ID);
-        return _lexer.peek(1).lexeme;
+        return lex;
     }
     else
     {
@@ -349,8 +350,9 @@ string parser::NL()
 {
     if ((_lexer.peek(1).tokenType == TokenType::NL))
     {
+        string lex = _lexer.peek(1).lexeme;
         expect(TokenType::NL);
-        return _lexer.peek(1).lexeme;
+        return lex;
     }
     else
     {
@@ -361,8 +363,9 @@ string parser::CL()
 {
     if ((_lexer.peek(1).tokenType == TokenType::CL))
     {
+        string lex = _lexer.peek(1).lexeme;
         expect(TokenType::CL);
-        return _lexer.peek(1).lexeme;
+        return lex;
     }
     else
     {
@@ -373,8 +376,9 @@ string parser::STR()
 {
     if ((_lexer.peek(1).tokenType == TokenType::STR))
     {
+        string lex = _lexer.peek(1).lexeme;
         expect(TokenType::STR);
-        return _lexer.peek(1).lexeme;
+        return lex;
     }
     else
     {
@@ -444,6 +448,7 @@ void parser::S()
     {
         string funcName = _lexer.peek(1).lexeme;
         currentScope = funcName;
+        currentScopeLineNumber = n;
     }
     parser::ID();
     parser::Parameters();
@@ -452,6 +457,7 @@ void parser::S()
     parser::Statement();
     parser::END();
     parser::S_1();
+    generateTAC();
 }
 // S'-> FUNC Datatype ID Parameters COLON BEGIN Statement END S' | ^
 void parser::S_1()
@@ -464,6 +470,7 @@ void parser::S_1()
         {
             string funcName = _lexer.peek(1).lexeme;
             currentScope = funcName;
+            currentScopeLineNumber = n;
         }
         parser::ID();
         parser::Parameters();
@@ -703,7 +710,7 @@ void parser::For_St()
     parser::BEGIN();
     parser::Statement();
     emit(s);
-    emit("goto" + to_string(start));
+    emit("goto " + to_string(start));
     backpatch(v[1], to_string(n));
     parser::END();
 }
@@ -713,6 +720,7 @@ string parser::For_Init()
     parser::AO();
     string v = parser::Expression();
     string s = id + " = " + v;
+    return s;
 }
 
 void parser::If_St()
@@ -795,7 +803,7 @@ string parser::Print_Param()
     if (_lexer.peek(1).tokenType == TokenType::STR)
     {
         string s = parser::STR();
-        return "\"" + s + "\"";
+        return s;
     }
     else
     {
@@ -834,71 +842,99 @@ vector<int> parser::Condition()
     emit("if " + s1 + " " + op + " " + s2 + " goto");
     v.push_back(n);
     emit("goto");
+    return v;
 }
 
 //------------------Expressions------------------------------------------
 string parser::Expression()
 {
-    string n = parser::T();
-    string v = parser::E_1(n);
-    return v;
+    string s1 = parser::T();
+    string s2 = parser::E_1(s1);
+    cout << s2 << endl;
+    return s2;
 } //-> T E'
-string parser::E_1(string n)
+string parser::E_1(string s0)
 {
     if (_lexer.peek(1).tokenType == TokenType::ADD)
     {
         parser::ADD();
-        string t = parser::T();
-        string f = parser::E_1(t);
+        string s1 = parser::T();
+        string s2 = parser::E_1(s1);
+        string newVar = newTmp();
+        string s3 = (newVar + " = " + s0 + "+" + s1);
+        emit(s3);
+        return newVar;
     }
     if (_lexer.peek(1).tokenType == TokenType::SUB)
     {
         parser::SUB();
-        parser::T();
-        parser::E_1();
+        string s1 = parser::T();
+        string s2 = parser::E_1(s1);
+        string newVar = newTmp();
+        string s3 = (newVar + " = " + s0 + "-" + s1);
+        emit(s3);
+        return newVar;
     }
     else
     {
+        return "";
     }
 } //-> ADD T E' | SUB T E' | ^
-void parser::T()
+string parser::T()
 {
-    parser::F();
-    parser::T_1();
+    string s1 = parser::F();
+    string s2 = parser::T_1(s1);
+    return s1;
 } //-> F T'
-void parser::T_1()
+string parser::T_1(string s0)
 {
     if (_lexer.peek(1).tokenType == TokenType::MUL)
     {
         parser::MUL();
-        parser::F();
-        parser::T_1();
+        string s1 = parser::F();
+        string s2 = parser::T_1(s1);
+        string newVar = newTmp();
+        string s3 = (newVar + " = " + s0 + "*" + s1);
+        emit(s3);
+
+        return newVar;
     }
     if (_lexer.peek(1).tokenType == TokenType::DIV)
     {
         parser::DIV();
-        parser::F();
-        parser::T_1();
+        string s1 = parser::F();
+        string s2 = parser::T_1(s1);
+        string newVar = newTmp();
+        string s3 = (newVar + " = " + s0 + "/" + s1);
+        emit(s3);
+        return newVar;
     }
     if (_lexer.peek(1).tokenType == TokenType::MOD)
     {
         parser::MOD();
-        parser::F();
-        parser::T_1();
+        string s1 = parser::F();
+        string s2 = parser::T_1(s1);
+        string newVar = newTmp();
+        string s3 = (newVar + "=" + s0 + "%" + s1);
+        emit(s3);
+        return newVar;
     }
     else
     {
+        return "";
     }
 } //-> MUL F T' | DIV F T' | MOD F T' | ^
-void parser::F()
+string parser::F()
 {
     if (_lexer.peek(1).tokenType == TokenType::ID)
     {
-        parser::ID();
+        string lex = parser::ID();
+        return lex;
     }
     else if (_lexer.peek(1).tokenType == TokenType::NL)
     {
-        parser::NL();
+        string lex = parser::NL();
+        return lex;
     }
     else
     {
@@ -906,31 +942,37 @@ void parser::F()
     }
 } //-> ID | NL
 
-void parser::RelationalOp()
+string parser::RelationalOp()
 { //-> EQ | GT | LT | GE | LE | NE
     if (_lexer.peek(1).tokenType == TokenType::EQ)
     {
         parser::EQ();
+        return "==";
     }
     else if (_lexer.peek(1).tokenType == TokenType::GT)
     {
         parser::GT();
+        return ">";
     }
     else if (_lexer.peek(1).tokenType == TokenType::LT)
     {
         parser::LT();
+        return "<";
     }
     else if (_lexer.peek(1).tokenType == TokenType::GE)
     {
         parser::GE();
+        return ">=";
     }
     else if (_lexer.peek(1).tokenType == TokenType::LE)
     {
         parser::LE();
+        return "<=";
     }
     else if (_lexer.peek(1).tokenType == TokenType::NE)
     {
         parser::NE();
+        return "~=";
     }
     else
     {
@@ -941,52 +983,55 @@ void parser::RelationalOp()
 void parser::Input_St()
 {
     parser::IN();
-    parser::ID();
+    string lex = parser::ID();
     parser::SEMICOLON();
+    emit("in " + lex);
 
 } //-> IN ID SEMICOLON
 
 void parser::Call_St()
 {
     parser::CALL();
-    parser::ID();
-    parser::Param_Id();
+    string s3 = parser::ID();
+    int s4 = parser::Param_Id();
     parser::SEMICOLON();
+    string newVar = newTmp();
+    string s1 = ("call" + s3 + "," + to_string(s4) + newVar);
+    emit(s1);
+    // return s1;
 
 } //-> CALL ID Param_Id SEMICOLON
-void parser::Param_Id()
+int parser::Param_Id()
 {
     if (_lexer.peek(1).tokenType == TokenType::ID)
     {
-        parser::ID();
-        parser::Param_Id_1();
+        string lex = parser::ID();
+        emit("param " + lex);
+        int c = parser::Param_Id_1();
+        return c + 1;
     }
     else
     {
+        int c = 0;
+        return c;
     }
 } //-> ID Param_Id' | ^
-void parser::Param_Id_1()
+int parser::Param_Id_1()
 {
     if (_lexer.peek(1).tokenType == TokenType::COMMA)
     {
         parser::COMMA();
-        parser::ID();
-        parser::Param_Id_1();
+        string lex = parser::ID();
+        emit("param " + lex);
+        int c = parser::Param_Id_1();
+        return c + 1;
     }
     else
     {
+        int c = 0;
+        return c;
     }
 } //-> COMMA ID Param_Id' | ^
-
-void parser::A()
-{
-    if ((_lexer.peek(1).tokenType == TokenType::CL))
-        parser::CL();
-    else if ((_lexer.peek(1).tokenType == TokenType::NL))
-    {
-        parser::NL();
-    }
-}
 
 // this function is for sample purposes only
 /*
@@ -1043,23 +1088,17 @@ void parser::addSymbol(string id)
             syntax_error();
         }
 
-        /*string value;
+        string value;
         if (_lexer.peek(2).tokenType == TokenType::AO)
         {
             value = _lexer.peek(3).lexeme;
         }
         else
         {
-            value = "None";
-<<<<<<< Updated upstream
+            value = "NULL";
         }
         string entry = "\n" + id + " " + type + " " + value + " ";
-=======
-        }*/
-        string entry = "\n" + id + " " + type + " ";// + value + " ";
->>>>>>> Stashed changes
         symbolTable[currentScope] += entry;
-
         ofstream table;
         table.open("symbol_table.txt", ios_base::trunc);
         unordered_map<string, string>::iterator itr;
@@ -1073,11 +1112,58 @@ void parser::addSymbol(string id)
 
 void parser::emit(string s)
 {
-    TAC.push_back(to_string(n) + s);
+    TAC.push_back(to_string(n) + " " + s);
     n++;
 }
 
 void parser::backpatch(int n, string s)
 {
     TAC[n - 1] += (" " + s);
+}
+
+string parser::newTmp()
+{
+    addSymboltmp("tmp" + to_string(tmp));
+    return ("tmp" + to_string(tmp));
+    tmp++;
+}
+
+void parser::addSymboltmp(string id)
+{
+    string symbols = "";
+    if (symbolTable.find(currentScope) != symbolTable.end())
+    {
+        symbols = symbolTable[currentScope];
+    }
+    else
+    {
+        symbolTable[currentScope] = "Address: " + to_string(currentScopeLineNumber);
+    }
+
+    if (symbols.find("\n" + id + " ") == string::npos)
+    {
+        string type = "INT"; // not needed
+        string value = "NULL";
+        string entry = "\n" + id + " " + type + " " + value + " ";
+        symbolTable[currentScope] += entry;
+        ofstream table;
+        table.open("symbol_table.txt", ios_base::trunc);
+        unordered_map<string, string>::iterator itr;
+        for (itr = symbolTable.begin(); itr != symbolTable.end(); itr++)
+        {
+            table << itr->first << ":" << itr->second << endl;
+        }
+        table.close();
+    }
+}
+
+void parser::generateTAC()
+{
+    ofstream tac;
+    tac.open("TAC.txt", ios_base::trunc);
+    for (int i = 0; i < TAC.size(); i++)
+    {
+        tac << TAC[i] << endl;
+    }
+    tac.close();
 }

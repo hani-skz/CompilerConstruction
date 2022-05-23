@@ -1,6 +1,10 @@
 main:
-x INT 
-y INT 
-z INT 
-i INT 
-num INT 
+num INT NULL 
+tmp1 INT NULL 
+calculateFib:
+n INT NULL 
+x INT 0 
+y INT 1 
+z INT 0 
+i INT NULL 
+tmp1 INT NULL 

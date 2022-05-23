@@ -5,6 +5,9 @@
         "xlocale": "cpp",
         "xlocnum": "cpp",
         "iostream": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "iosfwd": "cpp",
+        "xiosbase": "cpp",
+        "string": "cpp"
     }
 }

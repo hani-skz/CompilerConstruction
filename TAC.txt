@@ -1,0 +1,27 @@
+1 x = 
+2 y = 
+3 z = 
+4 if  <  goto 6
+5 goto 9
+6 out "negative number entered\n"
+7 ret 
+8 goto 22
+9 out "\nThe fibonacci series :"
+10 i = 
+11 if  <  goto 13
+12 goto 22
+13 tmp1 = i+1
+14 out 
+15 out " "
+16 tmp1 = x+y
+17 z = tmp1
+18 x = 
+19 y = 
+20 i = tmp1
+21 goto 11
+22 ret 
+23 out "Enter the number :"
+24 in num
+25 param num
+26 callcalculateFib,1tmp1
+27 ret 
