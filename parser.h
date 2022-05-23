@@ -14,8 +14,7 @@ public:
     unordered_map<string, string> symbolTable;
     vector<string> TAC;
     int n = 1;
-    int tmp = 1;
-    
+    int tmp = 0;
 
 public:
     void syntax_error();

@@ -23,11 +23,11 @@ Datatype'		-> INT | CHAR | ^
 Init			-> AO Value {emit(Init.id,"=",Value.v)} | ^
 Value 			-> Expression {Value.v=Expression.v} | CL {Value.v=CL.lex}
 
-For_St			-> FOR For_Init1 {emit(For_Init1.s)} COMMA Condition  {backpatch(Condition.t,n)} COMMA For_Init2 COLON BEGIN Statement {emit(For_Init2.s);emit("goto",For_St.start);backpatch(Condition.f,n)} END
+For_St			-> FOR For_Init1 {emit(For_Init1.s);For_St.start = n} COMMA Condition  {backpatch(Condition.t,n)} COMMA For_Init2 COLON BEGIN Statement {emit(For_Init2.s);emit("goto",For_St.start);backpatch(Condition.f,n)} END
 For_Init		-> ID AO Expression {For_Init.s = ID.lex+"="+Expression.v}
 
-If_St			-> IF Condition {backpatch(Condition.t,n);Second_Block.f=Condition.f} COLON BEGIN Statement {If_St.next = n; emit("goto")} END Second_Block {backpatch(If_St.next,n)}
-Second_Block 	-> {Else_St.f = Second_Block.f} Else_St  | {Elif_St.f = Second_Block.f} Elif_St | ^
+If_St			-> IF Condition {backpatch(Condition.t,n);Second_Block.f=Condition.f} COLON BEGIN Statement  END Second_Block 
+Second_Block 	-> {Second_Block.next = n; emit("goto"); Else_St.f = Second_Block.f} Else_St {backpatch(Second_Block.next,n)} | {Second_Block.next = n; emit("goto"); Elif_St.f = Second_Block.f} Elif_St {backpatch(Second_Block.next,n)}| ^ {backpatch(Second_Block.f,n)}
 Else_St			-> ELSE {backpatch(Else_St.f,n)} COLON BEGIN Statement END
 Elif_St			-> ELIF {backpatch(Elif_St.f,n)} Condition {backpatch(Condition.t,n);Second_Block.f=Condition.f}  COLON BEGIN Statement {Elif_St.next = n; emit("goto")} END Second_Block {backpatch(Elif_St.next,n)}
 

@@ -8,6 +8,7 @@
         "vector": "cpp",
         "iosfwd": "cpp",
         "xiosbase": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "xutility": "cpp"
     }
 }

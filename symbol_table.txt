@@ -1,10 +1,11 @@
-main:
+main 23:
 num INT NULL 
-tmp1 INT NULL 
-calculateFib:
+tmp3 INT NULL 
+calculateFib 1:
 n INT NULL 
 x INT 0 
 y INT 1 
 z INT 0 
 i INT NULL 
 tmp1 INT NULL 
+tmp2 INT NULL 

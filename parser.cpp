@@ -731,24 +731,28 @@ void parser::If_St()
     parser::COLON();
     parser::BEGIN();
     parser::Statement();
-    int next = n;
-    emit("goto");
     parser::END();
     parser::Second_Block(v[1]);
-    backpatch(next, to_string(n));
 }
 void parser::Second_Block(int f)
 { //-> Else_St | Elif_St | ^
     if (_lexer.peek(1).tokenType == TokenType::ELSE)
     {
+        int next = n;
+        emit("goto");
         parser::Else_St(f);
+        backpatch(next, to_string(n));
     }
     else if (_lexer.peek(1).tokenType == TokenType::ELIF)
     {
+        int next = n;
+        emit("goto");
         parser::Elif_St(f);
+        backpatch(next, to_string(n));
     }
     else
     {
+        backpatch(f, to_string(n));
     }
 }
 void parser::Else_St(int f)
@@ -850,7 +854,6 @@ string parser::Expression()
 {
     string s1 = parser::T();
     string s2 = parser::E_1(s1);
-    cout << s2 << endl;
     return s2;
 } //-> T E'
 string parser::E_1(string s0)
@@ -877,7 +880,7 @@ string parser::E_1(string s0)
     }
     else
     {
-        return "";
+        return s0;
     }
 } //-> ADD T E' | SUB T E' | ^
 string parser::T()
@@ -921,7 +924,7 @@ string parser::T_1(string s0)
     }
     else
     {
-        return "";
+        return s0;
     }
 } //-> MUL F T' | DIV F T' | MOD F T' | ^
 string parser::F()
@@ -996,7 +999,7 @@ void parser::Call_St()
     int s4 = parser::Param_Id();
     parser::SEMICOLON();
     string newVar = newTmp();
-    string s1 = ("call" + s3 + "," + to_string(s4) + newVar);
+    string s1 = ("call " + s3 + ", " + to_string(s4) + ", " + newVar);
     emit(s1);
     // return s1;
 
@@ -1064,7 +1067,7 @@ void parser::addSymbol(string id)
     }
     else
     {
-        symbolTable[currentScope] = "";
+        symbolTable[currentScope] = " " + to_string(currentScopeLineNumber) +":";
     }
 
     if (symbols.find("\n" + id + " ") == string::npos)
@@ -1104,7 +1107,7 @@ void parser::addSymbol(string id)
         unordered_map<string, string>::iterator itr;
         for (itr = symbolTable.begin(); itr != symbolTable.end(); itr++)
         {
-            table << itr->first << ":" << itr->second << endl;
+            table << itr->first << itr->second << endl;
         }
         table.close();
     }
@@ -1123,9 +1126,9 @@ void parser::backpatch(int n, string s)
 
 string parser::newTmp()
 {
+    tmp++;
     addSymboltmp("tmp" + to_string(tmp));
     return ("tmp" + to_string(tmp));
-    tmp++;
 }
 
 void parser::addSymboltmp(string id)
@@ -1137,7 +1140,7 @@ void parser::addSymboltmp(string id)
     }
     else
     {
-        symbolTable[currentScope] = "Address: " + to_string(currentScopeLineNumber);
+        symbolTable[currentScope] = " " + to_string(currentScopeLineNumber) + ":";
     }
 
     if (symbols.find("\n" + id + " ") == string::npos)
@@ -1151,7 +1154,7 @@ void parser::addSymboltmp(string id)
         unordered_map<string, string>::iterator itr;
         for (itr = symbolTable.begin(); itr != symbolTable.end(); itr++)
         {
-            table << itr->first << ":" << itr->second << endl;
+            table << itr->first << itr->second << endl;
         }
         table.close();
     }
