@@ -1,53 +1,58 @@
 GRAMMER:
 
-S 		-> FUNC Datatype ID Parameters COLON BEGIN Statement END S'
-S'		-> FUNC Datatype ID Parameters COLON BEGIN Statement END S' | ^
-Parameters	-> ID Datatype Parameters' | ^
-Parameters' 	-> COMMA ID Datatype Parameters' | ^
-Datatype	-> INT | CHAR
+{
+	int n=1;
+}
 
-Statement 	-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
-		   Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement'
-Statement' 	-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
-		   Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
+S 				-> FUNC Datatype ID Parameters COLON BEGIN Statement END S'
+S'				-> FUNC Datatype ID Parameters COLON BEGIN Statement END S' | ^
+Parameters		-> ID Datatype Parameters' | ^
+Parameters' 	-> COMMA ID Datatype Parameters'  | ^
+Datatype		-> INT | CHAR
 
-Declaration_St	-> ID Rest_of_Decl
-Rest_of_Decl	-> Init More_Decl Datatype' SEMICOLON
+Statement 		-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
+		   			Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement'
+Statement' 		-> Declaration_St Statement' | For_St Statement' | Print_St Statement' |
+		   			Input_St Statement' | If_St Statement' | Return_St Statement' | Call_St Statement' | ^
 
-More_Decl	-> COMMA ID Init More_Decl | ^
-Datatype' 	-> INT | CHAR | ^
-Init		-> AO Value | ^
-Value 		-> Expression | CL
+Declaration_St	-> ID {Rest_of_decl.first_id = ID.lex} Rest_of_Decl
+Rest_of_Decl	-> {Init.id = Rest_of_Decl.first_id} Init More_Decl Datatype' SEMICOLON
 
-For_St		-> FOR For_Init COMMA Condition COMMA For_Init COLON BEGIN Statement END
-For_Init	-> ID AO Expression
+More_Decl		-> COMMA ID {Init.id = ID.lex} Init More_Decl | ^
+Datatype'		-> INT | CHAR | ^
+Init			-> AO Value {emit(Init.id,"=",Value.v)} | ^
+Value 			-> Expression {Value.v=Expression.v} | CL {Value.v=CL.lex}
 
-If_St		-> IF Condition COLON BEGIN Statement END Second_Block
-Second_Block 	-> Else_St | Elif_St | ^
-Else_St		-> ELSE COLON BEGIN Statement END
-Elif_St		-> ELIF Condition COLON BEGIN Statement END Second_Block
+For_St			-> FOR For_Init1 {emit(For_Init1.s);For_St.start = n} COMMA Condition  {backpatch(Condition.t,n)} COMMA For_Init2 COLON BEGIN Statement {emit(For_Init2.s);emit("goto",For_St.start);backpatch(Condition.f,n)} END
+For_Init		-> ID AO Expression {For_Init.s = ID.lex+"="+Expression.v}
 
-Print_St	-> PRINT Print_Param SEMICOLON | PRINTLN Print_Param SEMICOLON
-Print_Param	-> STR | Expression 
+If_St			-> IF Condition {backpatch(Condition.t,n);Second_Block.f=Condition.f} COLON BEGIN Statement  END Second_Block 
+Second_Block 	-> {Second_Block.next = n; emit("goto"); Else_St.f = Second_Block.f} Else_St {backpatch(Second_Block.next,n)} | {Second_Block.next = n; emit("goto"); Elif_St.f = Second_Block.f} Elif_St {backpatch(Second_Block.next,n)}| ^ {backpatch(Second_Block.f,n)}
+Else_St			-> ELSE {backpatch(Else_St.f,n)} COLON BEGIN Statement END
+Elif_St			-> ELIF {backpatch(Elif_St.f,n)} Condition {backpatch(Condition.t,n);Second_Block.f=Condition.f}  COLON BEGIN Statement {Elif_St.next = n; emit("goto")} END Second_Block {backpatch(Elif_St.next,n)}
 
-Return_St	-> RETURN Return_Param SEMICOLON
-Return_Param	-> Expression | CL
+Print_St		-> PRINT Print_Param SEMICOLON emit("out ",Print_Param.s) | PRINTLN Print_Param SEMICOLON emit("out ",Print_Param.s,"\n")
+Print_Param		-> STR {Print_Param.s='"' + STR.lex + '"'} | Expression {Print_Param.s=Expression.v}
 
-Condition	-> Expression RelationalOp Expression
 
-Expression	-> T E'
-E'		-> ADD T E' | SUB T E' | ^
-T		-> F T'
-T'		-> MUL F T' | DIV F T' | MOD F T' | ^
-F		-> ID | NL
+Return_St		-> RETURN Return_Param SEMICOLON {emit("ret",Return_Param.v)}
+Return_Param	-> Expression {Return_Param.v=Expression.v} | CL {Return_Param.v=CL.lex}
 
-RelationalOp	-> EQ | GT | LT | GE | LE | NE
+Condition		-> Expression1 RelationalOp Expression2 {Condition.t = n;emit("if",Expression1.v,RelationalOp.op,Expression2.v,"goto");Condition.f=n;emit("goto")}
 
-Input_St	-> IN ID SEMICOLON
+Expression		-> T {E'.n = T.n} E' {Expression.v = E'.n}
+E'				-> ADD T {E'1.n = T.n} E'1 {tmp = newTmp(); emit(tmp,"=",E'.n,"+",T.n);E'.n = tmp} | SUB T {E'1.n = T.n} E'1 {tmp = newTmp(); emit(tmp,"=",E'.n,"-",T.n);E'.n = tmp}| ^
+T				-> F {T'.n = F.n} T' {T.n = T'.n}
+T'				-> MUL F {T1'.n = F.n} T'1 {tmp = newTmp(); emit(tmp,"=",T'.n,"*",F.n); T'.n = tmp} | DIV F {T1'.n = F.n} T'1 {tmp = newTmp(); emit(tmp,"=",T'.n,"/",F.n); T'.n = tmp} | MOD {T'1.n = F.n} F T'1 {tmp = newTmp(); emit(tmp,"=",T'.n,"%",F.n); T'.n = tmp}| ^
+F				-> ID {F.n = ID.lex} | NL {F.n = NL.lex}
 
-Call_St		-> CALL ID Param_Id SEMICOLON
-Param_Id	-> ID Param_Id' | ^
-Param_Id'	-> COMMA ID Param_Id' | ^
+RelationalOp	-> EQ {RelationalOp.op="=="} | GT{RelationalOp.op=">"} | LT{RelationalOp.op="<"} | GE{RelationalOp.op=">="} | LE{RelationalOp.op="<="} | NE{RelationalOp.op="~="}
+
+Input_St		-> IN ID SEMICOLON {emit("in",ID.lex)}
+
+Call_St			-> CALL ID  Param_Id SEMICOLON {tmp = newTemp(); emit("call",ID.lex,",",Param_Id.c,",",tmp)}
+Param_Id		-> ID {emit("param",ID.lex)} Param_Id' {Param_Id.c = Param_Id'.c + 1}| ^ {Param_Id.c = 0}
+Param_Id'		-> COMMA ID {emit("param",ID.lex)} Param_Id'1{Param_Id'.c=Param_Id'1.c + 1} | ^ {Param_Id'.c=0}
 
 
 Regular Expressions for tokens:
@@ -56,36 +61,36 @@ FUNC 		->		func
 INT 		->		int
 CHAR 		->		char
 CALL 		->		call
-IF 		->		if
+IF 			->		if
 ELIF 		->		elif
 ELSE 		->		else
 FOR 		->		for
 PRINT 		->		print
 PRINTLN 	->		println
 RETURN 		->		return
-IN 		->		in
+IN 			->		in
 BEGIN 		->		begin
 END 		->		end
-AO		->		<-
+AO			->		<-
 ADD 		->		+
-SUB		->		-
-MUL		->		*
-DIV		->		/
-MOD		->		%
-EQ		->		=
-GT		->		>
-GE		->		>=
-LT		->		<
-LE		->		<=
-NE		->		~=
-ID		->		CL A*
-A		-> 		CL|NL 
-NL		->		NUM+
-CL		->		CH
-STR		->		(CH+NUM)+
+SUB			->		-
+MUL			->		*
+DIV			->		/
+MOD			->		%
+EQ			->		=
+GT			->		>
+GE			->		>=
+LT			->		<
+LE			->		<=
+NE			->		~=
+ID			->		CL A*
+A			-> 		CL|NL 
+NL			->		NUM+
+CL			->		CH
+STR			->		(CH+NUM)+
 COMMA		->		,
 HASH		->		#
 COLON		->		:
 SEMICOLON	->		;
-CH		->		[all characters]
-NUM		->		0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+CH			->		[all characters]
+NUM			->		0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
