@@ -44,6 +44,51 @@ bool is_number(const std::string &s)
     return !s.empty() && it == s.end();
 }
 
+void executeQuad(){
+    for (int pc= 0; pc<quad.size(); ++pc){
+        switch (quad[pc][0]) {// Examine opcode
+            case 0:
+                int temp = quad[pc][1];
+                cout << ds[i];
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8:
+                break;
+            case 9:
+                break;
+            case 10:
+                break;
+            case 11:
+                break;
+            case 12:
+                break;
+            case 13:
+                break;
+            case 14:
+                break;
+            case 15:
+                break;
+            case 16:
+                break;
+            
+
+    }
+
+}
+
 void convertTACintoQuad(string fname1, string fname2)
 {
     fstream tac;
