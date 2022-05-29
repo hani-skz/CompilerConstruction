@@ -864,7 +864,7 @@ string parser::E_1(string s0)
         string s1 = parser::T();
         string s2 = parser::E_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + "+" + s1);
+        string s3 = (newVar + " = " + s0 + " + " + s1);
         emit(s3);
         return newVar;
     }
@@ -874,7 +874,7 @@ string parser::E_1(string s0)
         string s1 = parser::T();
         string s2 = parser::E_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + "-" + s1);
+        string s3 = (newVar + " = " + s0 + " - " + s1);
         emit(s3);
         return newVar;
     }
@@ -897,7 +897,7 @@ string parser::T_1(string s0)
         string s1 = parser::F();
         string s2 = parser::T_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + "*" + s1);
+        string s3 = (newVar + " = " + s0 + " * " + s1);
         emit(s3);
 
         return newVar;
@@ -908,7 +908,7 @@ string parser::T_1(string s0)
         string s1 = parser::F();
         string s2 = parser::T_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + "/" + s1);
+        string s3 = (newVar + " = " + s0 + " / " + s1);
         emit(s3);
         return newVar;
     }
@@ -918,7 +918,7 @@ string parser::T_1(string s0)
         string s1 = parser::F();
         string s2 = parser::T_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + "=" + s0 + "%" + s1);
+        string s3 = (newVar + "=" + s0 + " % " + s1);
         emit(s3);
         return newVar;
     }
@@ -1067,7 +1067,7 @@ void parser::addSymbol(string id)
     }
     else
     {
-        symbolTable[currentScope] = " " + to_string(currentScopeLineNumber) +":";
+        symbolTable[currentScope] = " " + to_string(currentScopeLineNumber) + ":";
     }
 
     if (symbols.find("\n" + id + " ") == string::npos)
@@ -1115,7 +1115,7 @@ void parser::addSymbol(string id)
 
 void parser::emit(string s)
 {
-    TAC.push_back(to_string(n) + " " + s);
+    TAC.push_back(s);
     n++;
 }
 

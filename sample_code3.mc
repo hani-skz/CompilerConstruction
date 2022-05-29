@@ -34,5 +34,9 @@ begin # Three address code generation starts after here
 	print "Enter the number :";#print 
 	in num;# take input in num variable
 	call calculateFib num;
+	smthn int;
+	x,y,z int;
+	x<-2;
+	smthn <- x + y + z;
 	return 0;#halt
 end
