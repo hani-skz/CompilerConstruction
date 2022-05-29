@@ -1,27 +1,8 @@
-main 31:
-num INT NULL 
-tmp11 INT NULL 
-smthn INT NULL 
-x INT NULL 
-y INT NULL 
-z INT NULL 
-tmp12 INT NULL 
-tmp13 INT NULL 
-tmp14 INT NULL 
-tmp15 INT NULL 
-calculateFib 1:
-n INT NULL 
+main 1:
 x INT 0 
-tmp1 INT NULL 
 y INT 1 
-tmp2 INT NULL 
 z INT 0 
-tmp3 INT NULL 
 i INT NULL 
-tmp4 INT NULL 
-tmp5 INT NULL 
-tmp6 INT NULL 
-tmp7 INT NULL 
-tmp8 INT NULL 
-tmp9 INT NULL 
-tmp10 INT NULL 
+num INT NULL 
+tmp1 INT NULL 
+tmp2 INT NULL 
