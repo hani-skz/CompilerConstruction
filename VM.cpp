@@ -17,23 +17,23 @@ map<int, int> valueTable;
 map<int, string> stringTable;
 
 map<string, int> opCodeTable{
-    {"out", 1},
-    {"in", 2},
-    {"+", 3},
-    {"-", 4},
-    {"=", 5},
-    {"/", 6},
-    {"%", 7},
-    {">", 8},
-    {"<", 9},
-    {"<=", 10},
-    {">=", 11},
-    {"==", 12},
-    {"!=", 13},
-    {"param", 14},
-    {"goto", 15},
-    {"call", 16},
-    {"ret", 17},
+    {"out", 0},
+    {"in", 1},
+    {"+", 2},
+    {"-", 3},
+    {"=", 4},
+    {"/", 5},
+    {"%", 6},
+    {">", 7},
+    {"<", 8},
+    {"<=", 9},
+    {">=", 10},
+    {"==", 11},
+    {"!=", 12},
+    {"param", 13},
+    {"goto", 14},
+    {"call", 15},
+    {"ret", 16},
 };
 
 bool is_number(const std::string &s)
@@ -42,6 +42,51 @@ bool is_number(const std::string &s)
     while (it != s.end() && std::isdigit(*it))
         ++it;
     return !s.empty() && it == s.end();
+}
+
+void executeQuad(){
+    for (int pc= 0; pc<quad.size(); ++pc){
+        switch (quad[pc][0]) {// Examine opcode
+            case 0:
+                int temp = quad[pc][1];
+                cout << ds[i];
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8:
+                break;
+            case 9:
+                break;
+            case 10:
+                break;
+            case 11:
+                break;
+            case 12:
+                break;
+            case 13:
+                break;
+            case 14:
+                break;
+            case 15:
+                break;
+            case 16:
+                break;
+            
+
+    }
+
 }
 
 void convertTACintoQuad(string fname1, string fname2)
