@@ -1,11 +1,10 @@
-#pragma once
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
 using namespace std;
 
-vector<char> readTACData;
+vector<char> TAC;
 
 //first read TAC into vector of struct quad
 //next execute quad with pc
@@ -28,10 +27,10 @@ void readTAC(const char filename[]){
         while (fin.get(byte))
         { // store file contents into readTACData
             if (byte != '\r')
-                readTACData.push_back(byte);
+                TAC.push_back(byte);
         }
-        readTACData.push_back(' '); // dummy spaces appended at the end
-        readTACData.push_back(' ');
+        TAC.push_back(' '); // dummy spaces appended at the end
+        TAC.push_back(' ');
     }
 }
 
@@ -44,7 +43,7 @@ int main(int argc, char* argv[])
         readTAC(argv[1]);
         for (int i = 0; i < TAC.size(); i++)
         {
-            tac << TAC[i] << endl;
+            cout << TAC[i];
         }
 		
 		
