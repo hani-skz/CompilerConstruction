@@ -8,7 +8,7 @@
 
 using namespace std;
 
-vector<int[4]> quad;
+vector<vector<int>> quad;
 
 map<string, int> ds;
 
@@ -136,13 +136,14 @@ void convertTACintoQuad(string fname1, string fname2)
         vector<string> words;
         istringstream ss(line);
         string word;
+        vector<int> quadRow(4, 0);
         while (ss >> word)
         {
             words.push_back(word);
         }
         if (opCodeTable.count(words[0]))
         { // not an assignment
-            quad[quadIndex][0] = opCodeTable[words[0]];
+            quadRow[0] = opCodeTable[words[0]];
             if (words[0] == "out")
             {
                 string str;
@@ -154,19 +155,40 @@ void convertTACintoQuad(string fname1, string fname2)
                 str.pop_back();
                 ds[str] = valueTableIndex++;
                 stringTable[ds[str]] = str;
-                quad[quadIndex][1] = ds[str];
+                quadRow[1] = ds[str];
             }
             else if (words[0] == "call")
             {
+                words[1].pop_back();
+                if (functionTable.count(words[1]))
+                {
+                    quadRow[1] = functionTable[words[1]];
+                    words[2].pop_back();
+                    quadRow[2] = stoi(words[2]);
+                    if (ds.count(words[3]))
+                    {
+                        quadRow[3] = ds[words[3]];
+                    }
+                    else
+                    {
+                        cout << "ERROR: " << words[3] << " IS NOT DECLARED" << endl;
+                        return;
+                    }
+                }
+                else
+                {
+                    cout << "FUNCTION ERROR: " << words[1] << " IS NOT DECLARED" << endl;
+                    return;
+                }
             }
-            quad[quadIndex][1] = ds[words[1]];
+            quadRow[1] = ds[words[1]];
         }
         else if (words[0] == "if")
         {
-            quad[quadIndex][0] = opCodeTable[words[2]];
+            quadRow[0] = opCodeTable[words[2]];
             if (ds.count(words[1]))
             {
-                quad[quadIndex][1] = ds[words[1]];
+                quadRow[1] = ds[words[1]];
             }
             else
             {
@@ -175,14 +197,14 @@ void convertTACintoQuad(string fname1, string fname2)
                     int num = stoi(words[1]);
                     valueTable[valueTableIndex] = num;
                     ds[words[1]] = valueTableIndex++;
-                    quad[quadIndex][1] = ds[words[1]];
+                    quadRow[1] = ds[words[1]];
                 }
-                cout << "ERROR: " << words[1] << "IS NOT DECLARED" << endl;
+                cout << "ERROR: " << words[1] << " IS NOT DECLARED" << endl;
                 return;
             }
             if (ds.count(words[3]))
             {
-                quad[quadIndex][3] = ds[words[3]];
+                quadRow[3] = ds[words[3]];
             }
             else
             {
@@ -191,21 +213,21 @@ void convertTACintoQuad(string fname1, string fname2)
                     int num = stoi(words[3]);
                     valueTable[valueTableIndex] = num;
                     ds[words[3]] = valueTableIndex++;
-                    quad[quadIndex][3] = ds[words[3]];
+                    quadRow[3] = ds[words[3]];
                 }
                 else
                 {
-                    cout << "ERROR: " << words[3] << "IS NOT DECLARED" << endl;
+                    cout << "ERROR: " << words[3] << " IS NOT DECLARED" << endl;
                     return;
                 }
             }
-            quad[quadIndex][3] = stoi(words[5]);
+            quadRow[3] = stoi(words[5]);
         }
         else
         { // an assignment
             if (ds.count(words[0]))
             {
-                quad[quadIndex][1] = ds[words[0]];
+                quadRow[1] = ds[words[0]];
             }
             else
             {
@@ -214,7 +236,7 @@ void convertTACintoQuad(string fname1, string fname2)
             }
             if (ds.count(words[2]))
             {
-                quad[quadIndex][2] = ds[words[2]];
+                quadRow[2] = ds[words[2]];
             }
             else
             {
@@ -223,43 +245,48 @@ void convertTACintoQuad(string fname1, string fname2)
                     int num = stoi(words[2]);
                     valueTable[valueTableIndex] = num;
                     ds[words[2]] = valueTableIndex++;
-                    quad[quadIndex][2] = ds[words[2]];
+                    quadRow[2] = ds[words[2]];
                 }
                 else
                 {
-                    cout << "ERROR: " << words[2] << "IS NOT DECLARED" << endl;
+                    cout << "ERROR: " << words[2] << " IS NOT DECLARED" << endl;
                     return;
                 }
             }
             if (words.size() > 3)
             { // assignment of expression
-                if (is_number(words[4]))
+                if (ds.count(words[4]))
+                {
+                    quadRow[3] = ds[words[4]];
+                }
+                else if (is_number(words[4]))
                 {
                     int num = stoi(words[4]);
                     valueTable[valueTableIndex] = num;
                     ds[words[4]] = valueTableIndex++;
-                    quad[quadIndex][4] = ds[words[4]];
+                    quadRow[3] = ds[words[4]];
                 }
                 else
                 {
-                    cout << "ERROR: " << words[4] << "IS NOT DECLARED" << endl;
+                    cout << "ERROR: " << words[4] << " IS NOT DECLARED" << endl;
                     return;
                 }
                 if (opCodeTable.count(words[3]))
                 {
-                    quad[quadIndex][0] = opCodeTable[words[3]];
+                    quadRow[0] = opCodeTable[words[3]];
                 }
                 else
                 {
-                    cout << "ERROR: " << words[3] << "IS NOT A VALID OPERATOR" << endl;
+                    cout << "ERROR: " << words[3] << " IS NOT A VALID OPERATOR" << endl;
                     return;
                 }
             }
             else
             { // simple assignment
-                quad[quadIndex][0] = opCodeTable[words[1]];
+                quadRow[0] = opCodeTable[words[1]];
             }
         }
+        quad.push_back(quadRow);
         quadIndex++;
     }
 }
