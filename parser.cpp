@@ -449,6 +449,7 @@ void parser::S()
         string funcName = _lexer.peek(1).lexeme;
         currentScope = funcName;
         currentScopeLineNumber = n;
+        scopeParams = 0;
     }
     parser::ID();
     parser::Parameters();
@@ -471,6 +472,7 @@ void parser::S_1()
             string funcName = _lexer.peek(1).lexeme;
             currentScope = funcName;
             currentScopeLineNumber = n;
+            scopeParams = 0;
         }
         parser::ID();
         parser::Parameters();
@@ -490,7 +492,8 @@ void parser::Parameters()
     if ((_lexer.peek(1).tokenType == TokenType::ID))
     {
         string id = _lexer.peek(1).lexeme;
-        addSymbol(id);
+        scopeParams++;
+        addSymbol(id);        
         parser::ID();
         parser::Datatype();
         parser::Parameters_1();
@@ -509,7 +512,8 @@ void parser::Parameters_1()
         if (_lexer.peek(1).tokenType == TokenType::ID)
         {
             string id = _lexer.peek(1).lexeme;
-            addSymbol(id);
+            scopeParams++;
+            addSymbol(id);            
         }
         parser::ID();
         parser::Datatype();
@@ -1067,11 +1071,12 @@ void parser::addSymbol(string id)
     }
     else
     {
-        symbolTable[currentScope] = " " + to_string(currentScopeLineNumber) + ":";
+        symbolTable[currentScope] = " " + to_string(currentScopeLineNumber) + " " + to_string(scopeParams) + " :";
     }
 
     if (symbols.find("\n" + id + " ") == string::npos)
     {
+        string head = " " + to_string(currentScopeLineNumber) + " " + to_string(scopeParams) + " :";
         string type;
         int i = 1;
         while (_lexer.peek(i).tokenType != TokenType::INT && _lexer.peek(i).tokenType != TokenType::CHAR && _lexer.peek(i).tokenType != TokenType::END_OF_FILE)
@@ -1101,15 +1106,30 @@ void parser::addSymbol(string id)
             value = "NULL";
         }
         string entry = "\n" + id + " " + type + " " + value + " ";
-        symbolTable[currentScope] += entry;
+        string newSymbols;
+       
+        int pos = symbols.find("\n");
+        if(pos!= -1){
+            cout << pos << endl;
+            newSymbols = head;
+            newSymbols = head + symbols.substr(pos);
+        }
+        else{
+            newSymbols = head;
+        }
+        newSymbols += entry;
+        symbolTable[currentScope] = newSymbols;
+
         ofstream table;
         table.open("symbol_table.txt", ios_base::trunc);
+        
         unordered_map<string, string>::iterator itr;
         for (itr = symbolTable.begin(); itr != symbolTable.end(); itr++)
         {
             table << itr->first << itr->second << endl;
         }
         table.close();
+        
     }
 }
 

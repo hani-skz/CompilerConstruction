@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -15,15 +14,11 @@ vector<vector<int>> quad;
 
 map<string, int> ds;
 
-map<string, pair<int, int>> functionTable;
-vector<pair<int, string>> funcLineNumbers;
-
+map<string, int> functionTable;
 map<int, int> valueTable;
 map<int, string> stringTable;
-map<string, vector<int>> paramTable;
 
 stack<int> stk;
-stack<string> function;
 
 map<string, int> opCodeTable{
     {"out", 0},
@@ -53,29 +48,25 @@ bool is_number(const std::string &s)
     return !s.empty() && it == s.end();
 }
 
+void executeFunction(int pc, int params)
+{
+    // yet to be made
+}
+
 void executeQuad()
 {
-    string func = function.top();
-    function.pop();
-    int params = functionTable[func].second;
-    int lineNumber = functionTable[func].first - 1;
-    if (params != paramTable[func].size())
+
+    stk.push(-1);
+
+    if (!functionTable.count("main"))
     {
-        cout << "ERROR: "
-             << "PARAMETERS NUMBER MISMATCH" << endl;
+        cout << "ERROR: MAIN FUNCTION IS NOT DEFINED" << endl;
         return;
     }
-    int dst = stk.top();
-    stk.pop();
-    for (int i = 0; i < params; i++)
-    {
-        valueTable[paramTable[func][i]] = valueTable[stk.top()];
-        stk.pop();
-    }
-
+    int mainLineNumber = functionTable["main"] - 1;
     int temp, dest, s1, s2;
     string str;
-    for (int pc = lineNumber; pc < quad.size(); ++pc)
+    for (int pc = mainLineNumber; pc < quad.size(); ++pc)
     {
         switch (quad[pc][0])
         {       // Examine opcode
@@ -190,17 +181,12 @@ void executeQuad()
             break;
         case 15: // call
             stk.push(quad[pc][3]);
-            for (auto &itr : funcLineNumbers)
-            {
-                if (itr.first == quad[pc][1])
-                {
-                    function.push(itr.second);
-                }
-            }
-            executeQuad();
+            executeFunction(quad[pc][0], quad[pc][2]);
             break;
         case 16: // ret
-            valueTable[dst] = valueTable[quad[pc][1]];
+            dest = stk.top();
+            stk.pop();
+            valueTable[dest] = quad[pc][1];
             return;
             break;
         }
@@ -217,25 +203,9 @@ void convertTACintoQuad(string fname1, string fname2)
 
     // create a datasegment
     int valueTableIndex = 0;
-    string func = "";
-    int numParams = 0;
     while (getline(st, line))
     {
-
-        if (line[line.length() - 1] == ':')
-        {
-            istringstream ss(line);
-            string word;
-            ss >> word;
-            string addr;
-            ss >> addr;
-            string paramNum;
-            ss >> paramNum;
-            numParams = stoi(paramNum);
-            functionTable[word] = make_pair(stoi(addr), numParams);
-            func = word;
-        }
-        else
+        if (line[line.length() - 1] != ':')
         {
             istringstream ss(line);
             string word;
@@ -244,44 +214,28 @@ void convertTACintoQuad(string fname1, string fname2)
             ss >> type;
             string value;
             ss >> value;
-            if (numParams == 0)
+            if (value != "NULL")
             {
-                if (value != "NULL")
-                {
-                    int val = stoi(value);
-                    valueTable[valueTableIndex] = val;
-                }
-                ds[func + word] = valueTableIndex++;
+                int val = stoi(value);
+                valueTable[valueTableIndex] = val;
             }
-            else
-            {
-                if (value != "NULL")
-                {
-                    int val = stoi(value);
-                    valueTable[valueTableIndex] = val;
-                }
-                ds[func + word] = valueTableIndex;
-                paramTable[func].push_back(valueTableIndex++);
-                numParams--;
-            }
+            ds[word] = valueTableIndex++;
+        }
+        else
+        {
+            istringstream ss(line);
+            string word;
+            ss >> word;
+            string addr;
+            ss >> addr;
+            addr.pop_back();
+            functionTable[word] = stoi(addr);
         }
     }
     int quadIndex = 0;
     int stringTableIndex = 0;
-
-    for (auto &it : functionTable)
-    {
-        funcLineNumbers.push_back(make_pair(it.second.first - 1, it.first));
-    }
-    sort(funcLineNumbers.begin(), funcLineNumbers.end());
-    func = "";
     while (getline(tac, line))
     {
-        for (auto &it : funcLineNumbers)
-        {
-            if (quadIndex == it.first)
-                func = it.second;
-        }
         // cout << line << endl;
         vector<string> words;
         istringstream ss(line);
@@ -313,7 +267,7 @@ void convertTACintoQuad(string fname1, string fname2)
                 else
                 {
                     quadRow[1] = -1;
-                    quadRow[2] = ds[func + words[1]];
+                    quadRow[2] = ds[words[1]];
                 }
             }
             else if (words[0] == "call")
@@ -321,12 +275,12 @@ void convertTACintoQuad(string fname1, string fname2)
                 words[1].pop_back();
                 if (functionTable.count(words[1]))
                 {
-                    quadRow[1] = functionTable[words[1]].first - 1;
+                    quadRow[1] = functionTable[words[1]];
                     words[2].pop_back();
                     quadRow[2] = stoi(words[2]);
-                    if (ds.count(func + words[3]))
+                    if (ds.count(words[3]))
                     {
-                        quadRow[3] = ds[func + words[3]];
+                        quadRow[3] = ds[words[3]];
                     }
                     else
                     {
@@ -344,49 +298,17 @@ void convertTACintoQuad(string fname1, string fname2)
             {
                 quadRow[1] = stoi(words[1]);
             }
-            else if (words[0] == "param")
-            {
-                if (is_number(words[1]))
-                {
-                    int num = stoi(words[1]);
-                    valueTable[valueTableIndex] = num;
-                    ds[func + words[1]] = valueTableIndex++;
-                    quadRow[1] = ds[func + words[1]];
-                }
-                else
-                {
-                    quadRow[1] = ds[func + words[1]];
-                }
-            }
-            else if (words[0] == "in")
-            {
-                quadRow[1] = ds[func + words[1]];
-            }
-            else if (words[0] == "ret")
-            {
-                if (is_number(words[1]))
-                {
-                    int num = stoi(words[1]);
-                    valueTable[valueTableIndex] = num;
-                    ds[func + words[1]] = valueTableIndex++;
-                    quadRow[1] = ds[func + words[1]];
-                }
-                else
-                {
-                    quadRow[1] = ds[func + words[1]];
-                }
-            }
             else
             {
-                quadRow[1] = ds[func + words[1]];
+                quadRow[1] = ds[words[1]];
             }
         }
         else if (words[0] == "if")
         {
             quadRow[0] = opCodeTable[words[2]];
-            if (ds.count(func + words[1]))
+            if (ds.count(words[1]))
             {
-                quadRow[1] = ds[func + words[1]];
+                quadRow[1] = ds[words[1]];
             }
             else
             {
@@ -403,9 +325,9 @@ void convertTACintoQuad(string fname1, string fname2)
                     return;
                 }
             }
-            if (ds.count(func + words[3]))
+            if (ds.count(words[3]))
             {
-                quadRow[2] = ds[func + words[3]];
+                quadRow[2] = ds[words[3]];
             }
             else
             {
@@ -426,18 +348,18 @@ void convertTACintoQuad(string fname1, string fname2)
         }
         else
         { // an assignment
-            if (ds.count(func + words[0]))
+            if (ds.count(words[0]))
             {
-                quadRow[1] = ds[func + words[0]];
+                quadRow[1] = ds[words[0]];
             }
             else
             {
                 cout << "ERROR: " << words[0] << "IS NOT DECLARED" << endl;
                 return;
             }
-            if (ds.count(func + words[2]))
+            if (ds.count(words[2]))
             {
-                quadRow[2] = ds[func + words[2]];
+                quadRow[2] = ds[words[2]];
             }
             else
             {
@@ -456,9 +378,9 @@ void convertTACintoQuad(string fname1, string fname2)
             }
             if (words.size() > 3)
             { // assignment of expression
-                if (ds.count(func + words[4]))
+                if (ds.count(words[4]))
                 {
-                    quadRow[3] = ds[func + words[4]];
+                    quadRow[3] = ds[words[4]];
                 }
                 else if (is_number(words[4]))
                 {
@@ -499,14 +421,6 @@ int main(int argc, char *argv[])
     {
         // read TAC
         convertTACintoQuad(argv[1], argv[2]);
-        stk.push(-1);
-
-        if (!functionTable.count("main"))
-        {
-            cout << "ERROR: MAIN FUNCTION IS NOT DEFINED" << endl;
-            return 0;
-        }
-        function.push("main");
         executeQuad();
     }
     else // if file name is'nt given

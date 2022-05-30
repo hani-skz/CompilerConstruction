@@ -1,4 +1,4 @@
-main 1:
+main 1 0 :
 x INT 0 
 y INT 1 
 z INT 0 

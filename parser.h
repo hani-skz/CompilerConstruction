@@ -10,6 +10,7 @@ public:
     lexer _lexer;
     token look;
     string currentScope;
+    int scopeParams;
     int currentScopeLineNumber;
     unordered_map<string, string> symbolTable;
     vector<string> TAC;
