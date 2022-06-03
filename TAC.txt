@@ -4,21 +4,22 @@ z = 0
 out "Enter the number :"
 in num
 if num < 0 goto 8
-goto 11
+goto 10
 out "negative number entered\n"
 ret 0
-goto 24
 out "\nThe fibonacci series :"
 i = 0
-if i < num goto 15
+if i < num goto 14
 goto 24
 tmp1 = i + 1
 out x
 out " "
-tmp2 = x + y
-z = tmp2
+tmp2 = y + z
+tmp3 = x + tmp2
+z = tmp3
 x = y
 y = z
 i = tmp1
-goto 13
+goto 12
+out "\n"
 ret 0

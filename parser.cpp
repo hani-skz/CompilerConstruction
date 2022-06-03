@@ -493,7 +493,7 @@ void parser::Parameters()
     {
         string id = _lexer.peek(1).lexeme;
         scopeParams++;
-        addSymbol(id);        
+        addSymbol(id);
         parser::ID();
         parser::Datatype();
         parser::Parameters_1();
@@ -513,7 +513,7 @@ void parser::Parameters_1()
         {
             string id = _lexer.peek(1).lexeme;
             scopeParams++;
-            addSymbol(id);            
+            addSymbol(id);
         }
         parser::ID();
         parser::Datatype();
@@ -868,7 +868,7 @@ string parser::E_1(string s0)
         string s1 = parser::T();
         string s2 = parser::E_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + " + " + s1);
+        string s3 = (newVar + " = " + s0 + " + " + s2);
         emit(s3);
         return newVar;
     }
@@ -878,7 +878,7 @@ string parser::E_1(string s0)
         string s1 = parser::T();
         string s2 = parser::E_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + " - " + s1);
+        string s3 = (newVar + " = " + s0 + " - " + s2);
         emit(s3);
         return newVar;
     }
@@ -891,7 +891,7 @@ string parser::T()
 {
     string s1 = parser::F();
     string s2 = parser::T_1(s1);
-    return s1;
+    return s2;
 } //-> F T'
 string parser::T_1(string s0)
 {
@@ -901,7 +901,7 @@ string parser::T_1(string s0)
         string s1 = parser::F();
         string s2 = parser::T_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + " * " + s1);
+        string s3 = (newVar + " = " + s0 + " * " + s2);
         emit(s3);
 
         return newVar;
@@ -912,7 +912,7 @@ string parser::T_1(string s0)
         string s1 = parser::F();
         string s2 = parser::T_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + " = " + s0 + " / " + s1);
+        string s3 = (newVar + " = " + s0 + " / " + s2);
         emit(s3);
         return newVar;
     }
@@ -922,7 +922,7 @@ string parser::T_1(string s0)
         string s1 = parser::F();
         string s2 = parser::T_1(s1);
         string newVar = newTmp();
-        string s3 = (newVar + "=" + s0 + " % " + s1);
+        string s3 = (newVar + "=" + s0 + " % " + s2);
         emit(s3);
         return newVar;
     }
@@ -1107,14 +1107,15 @@ void parser::addSymbol(string id)
         }
         string entry = "\n" + id + " " + type + " " + value + " ";
         string newSymbols;
-       
+
         int pos = symbols.find("\n");
-        if(pos!= -1){
-            cout << pos << endl;
+        if (pos != -1)
+        {
             newSymbols = head;
             newSymbols = head + symbols.substr(pos);
         }
-        else{
+        else
+        {
             newSymbols = head;
         }
         newSymbols += entry;
@@ -1122,14 +1123,13 @@ void parser::addSymbol(string id)
 
         ofstream table;
         table.open("symbol_table.txt", ios_base::trunc);
-        
+
         unordered_map<string, string>::iterator itr;
         for (itr = symbolTable.begin(); itr != symbolTable.end(); itr++)
         {
             table << itr->first << itr->second << endl;
         }
         table.close();
-        
     }
 }
 

@@ -3,7 +3,6 @@
 #2) The list initialization at line 8
 #3) function calling
 
-
 func int calculateFib n int:
 begin
 	#variable declarations, note i is not initialized
@@ -13,6 +12,10 @@ begin
 		print "negative number entered\n";#print
 		return 0;# this statement just halt the program
 	end
+	elif n = 0:
+	begin
+		print "it is zero";
+	end
 	else:
 	begin
 		print "\nThe fibonacci series :";#print
@@ -20,7 +23,7 @@ begin
 		begin
 			print x;
 			print " ";
-			z <- x + y; # store sum in z
+			z <- x + y + z; # store sum in z
 			x <- y; #assign value of y to x
 			y <- z; #assign values of z to y
 		end

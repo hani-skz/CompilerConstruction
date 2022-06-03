@@ -6,3 +6,4 @@ i INT NULL
 num INT NULL 
 tmp1 INT NULL 
 tmp2 INT NULL 
+tmp3 INT NULL 
